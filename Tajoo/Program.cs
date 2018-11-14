@@ -65,6 +65,7 @@ namespace Tajoo
 					}
 				}
 			}
+
 			for (int q = 0; q < len1 * len2; q++)
 			{
 				for (int w = 0; w < len1 * len2; w++)
