@@ -20,10 +20,9 @@ namespace Tajoo
 			var x = Console.Read();
 			var path1 = "..\\..\\graph1.csv";
 			var path2 = "..\\..\\graph2.csv";
-			var graph1 = read_CSV(path1);
-			var graph2 = read_CSV(path2);
-			var lg1 = create_line_graph(graph1);
-			var lg2 = create_line_graph(graph2);
+
+			var lg1 = create_line_graph(read_CSV(path1));
+			var lg2 = create_line_graph(read_CSV(path2));
 			var modularGraph = create_modular_graph(lg1,lg2);
 			
 			switch (x)
@@ -144,6 +143,28 @@ namespace Tajoo
 				}
 				return graph;
 			}
+		}
+		public static Graph Greedy(Graph g)
+		{
+			if (g.VerticesCount == 0)
+				return null;
+			// return g[max_degree(g)] u Greedy( N(g[max_degree(g)]) todoogarniecia
+			return null;
+
+		}
+		public int max_degree(Graph g)
+		{
+			int max = int.MinValue;
+			int id=-1;
+			for(int i=0;i<g.VerticesCount;i++)
+			{
+				if(g.InDegree(i)>max)
+				{
+					max = g.InDegree(i);
+					id = i;
+				}
+			}
+			return id;
 		}
 	}
 
