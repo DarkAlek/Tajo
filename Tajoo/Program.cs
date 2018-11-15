@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using ASD.Graphs;
 
 namespace Tajoo
 {
@@ -17,7 +18,13 @@ namespace Tajoo
 			Console.WriteLine("Press 3 to run approximate algorithm no.2");
 
 			var x = Console.Read();
-			var modularGraph = create_modular_graph();
+			var path1 = "..\\..\\graph1.csv";
+			var path2 = "..\\..\\graph2.csv";
+			var graph1 = read_CSV(path1);
+			var graph2 = read_CSV(path2);
+			var lg1 = create_line_graph(graph1);
+			var lg2 = create_line_graph(graph2);
+			var modularGraph = create_modular_graph(lg1,lg2);
 			
 			switch (x)
 			{
@@ -38,13 +45,42 @@ namespace Tajoo
 			}
 			 
 		}
-
-		public static ASD.Graphs.Graph create_modular_graph()
+		public static ASD.Graphs.Graph create_line_graph(Graph graph)
 		{
-			var matrix1 = read_CSV("..\\..\\graph1.csv");
-			var matrix2 = read_CSV("..\\..\\graph2.csv");
-			var len1 = matrix1.GetLength(0);
-			var len2 = matrix2.GetLength(0);
+			Graph gNew = graph.IsolatedVerticesGraph(false, graph.EdgesCount);
+			Graph gPom = graph.IsolatedVerticesGraph();
+
+			for (int v = 0; v < graph.VerticesCount; ++v)
+			{
+				foreach (Edge e in graph.OutEdges(v))
+				{
+					if (e.From < e.To)
+					{
+						gPom.AddEdge(e.From, e.To);
+						
+					}
+				}
+			}
+
+			for (int v = 0; v < gPom.VerticesCount; ++v)
+			{
+				foreach (Edge e1 in gPom.OutEdges(v))
+				{
+					foreach (Edge e2 in gPom.OutEdges(e1.To))
+					{
+						if (e1.From != e2.To)
+						{
+							gNew.AddEdge((int)e1.Weight, (int)e2.Weight);
+						}
+					}
+				}
+			}
+			return gNew;
+		}
+		public static Graph create_modular_graph(Graph graph1, Graph graph2)
+		{			
+			var len1 = graph1.VerticesCount;
+			var len2 = graph2.VerticesCount;
 			var graph = new ASD.Graphs.AdjacencyMatrixGraph(false, len1 * len2);
 
 			int[,] nxt = new int[len1 * len2, len1 * len2];
@@ -56,7 +92,7 @@ namespace Tajoo
 					{
 						for (int jpr = 0; jpr < len2; jpr++)
 						{
-							if (matrix1[i, ipr] == matrix2[j, jpr] && (i != ipr && j != jpr))
+							if (double.IsNaN(graph1.GetEdgeWeight(i, ipr))== double.IsNaN(graph2.GetEdgeWeight(j, jpr)) && (i != ipr && j != jpr))
 							{
 								graph.AddEdge(i + j * len1, ipr + jpr * len1);
 								nxt[i + j * len1, ipr + jpr * len1] = 1;
@@ -78,18 +114,19 @@ namespace Tajoo
 			}
 			return graph;
 		}
-		public static int[,] read_CSV(string path)
+		public static Graph read_CSV(string path)
 		{
 			using (var reader = new StreamReader(path))
 			{
 				var line = reader.ReadLine();
 				var values = line.Split(',');
-				int[,] tab = new int[values.Length, values.Length];
+				var graph = new ASD.Graphs.AdjacencyMatrixGraph(false, values.Length);
 				int i = 0;
 				int j = 0;
 				foreach (var x in values)
 				{
-					tab[i, j] = int.Parse(x);
+					if(int.Parse(x)==1)
+					graph.AddEdge(i,j);
 					i++;
 				}
 				while (!reader.EndOfStream)
@@ -100,11 +137,12 @@ namespace Tajoo
 					values = line.Split(',');
 					foreach (var x in values)
 					{
-						tab[i, j] = int.Parse(x);
+						if(int.Parse(x)==1)
+						graph.AddEdge(i, j);
 						i++;
 					}
 				}
-				return tab;
+				return graph;
 			}
 		}
 	}
