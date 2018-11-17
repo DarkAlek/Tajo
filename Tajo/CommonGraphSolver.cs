@@ -117,6 +117,11 @@ namespace Tajo
             return graph;
         }
 
+        private int[,] TranslateResultCliqueToSolution(Graph g)
+        {
+            // TO DO
+            return null;
+        }
 
         private int MaxDegree(Graph g)
         {
