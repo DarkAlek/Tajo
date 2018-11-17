@@ -122,7 +122,13 @@ namespace Tajo
             return graph;
         }
 
-        private int[,] TranslateResultCliqueToSolution(Graph g)
+        private int[,] TranslateResultCliqueToSolutionVertices(Graph g)
+        {
+            // TO DO
+            return null;
+        }
+
+        private int[,] TranslateResultCliqueToSolutionEdges(Graph g)
         {
             // TO DO
             return null;
@@ -143,11 +149,64 @@ namespace Tajo
             return id;
         }
 
-        private Graph BronKerbosch(Graph g)
+        private void BronKerbosch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
         {
             // TO DO
-            return null;
+            if(P.Count == 0 && X.Count == 0)
+            {
+                if(R.Count > C.Count)
+                {
+                    C = R;
+                }
+            }
+            else
+            {
+                HashSet<int> PuX = new HashSet<int>(P.Union(X));
+                int i = 0;
+                int pivot = -1;
+                int maxDegreeInP = int.MinValue;
 
+                foreach(var v in PuX)
+                {
+                    foreach(var e in g.OutEdges(v))
+                    {
+                        if (P.Contains(e.To)) i++;
+                    }
+                    
+                    if(i > maxDegreeInP)
+                    {
+                        maxDegreeInP = i;
+                        pivot = v;
+                    }
+
+                    i = 0;
+                }
+
+                HashSet<int> Nu = new HashSet<int>();
+
+                foreach(var e in g.OutEdges(pivot))
+                {
+                    Nu.Add(e.To);
+                }
+
+                HashSet<int> PeNu = new HashSet<int>(P.Except(Nu));
+                foreach(var v in PeNu)
+                {
+                    HashSet<int> Nv = new HashSet<int>();
+
+                    foreach (var e in g.OutEdges(v))
+                    {
+                        Nv.Add(e.To);
+                    }
+                    HashSet<int> vSet = new HashSet<int>();
+                    vSet.Add(v);
+
+                    BronKerbosch(g, new HashSet<int>(R.Union(vSet)), new HashSet<int>(P.Intersect(Nv)), new HashSet<int>(X.Intersect(Nv)), ref C);
+                    P.Remove(v);
+                    X.Add(v);
+
+                }
+            }
         }
 
 
@@ -177,6 +236,36 @@ namespace Tajo
         {
             //TO DO
             Graph graph = modularProductGraphVertices;
+            HashSet<int> R = new HashSet<int>();
+            HashSet<int> P = new HashSet<int>();
+            HashSet<int> X = new HashSet<int>();
+            HashSet<int> C = new HashSet<int>();
+
+            for (int v=0; v <  graph.VerticesCount; ++v)
+            {
+                P.Add(v);
+            }
+
+            BronKerbosch(graph, R, P, X, ref C);
+
+            return null;
+        }
+
+        public int[,] ExactAlghoritmEdges()
+        {
+            //TO DO
+            Graph graph = modularProductGraphEdges;
+            HashSet<int> R = new HashSet<int>();
+            HashSet<int> P = new HashSet<int>();
+            HashSet<int> X = new HashSet<int>();
+            HashSet<int> C = new HashSet<int>();
+
+            for (int v = 0; v < graph.VerticesCount; ++v)
+            {
+                P.Add(v);
+            }
+
+            BronKerbosch(graph, R, P, X, ref C);
 
             return null;
         }
@@ -188,6 +277,13 @@ namespace Tajo
             return null;
         }
 
+        public int[,] ApproximateAlgorithm1Edges()
+        {
+            //TO DO
+            Graph graph = modularProductGraphEdges;
+            return null;
+        }
+
         public int[,] ApproximateAlgorithm2Vertices()
         {
             //TO DO
@@ -195,22 +291,7 @@ namespace Tajo
             return null;
         }
 
-        public int[,] ExactAlghoritmEdge()
-        {
-            //TO DO
-            Graph graph = modularProductGraphEdges;
-
-            return null;
-        }
-
-        public int[,] ApproximateAlgorithm1Edge()
-        {
-            //TO DO
-            Graph graph = modularProductGraphEdges;
-            return null;
-        }
-
-        public int[,] ApproximateAlgorithm2Edge()
+        public int[,] ApproximateAlgorithm2Edges()
         {
             //TO DO
             Graph graph = modularProductGraphEdges;
