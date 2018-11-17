@@ -24,17 +24,17 @@ namespace Tajo
             Console.WriteLine("Reading graphs from .csv...");
 
 
-            var path1 = "..\\..\\Graphs\\graph1.csv";
-			var path2 = "..\\..\\Graphs\\graph2.csv";
+            var path1 = "..\\..\\Graphs\\graph3.csv";
+			var path2 = "..\\..\\Graphs\\graph4.csv";
             var graph1 = GraphReader.ReadCSV(path1);
             var graph2 = GraphReader.ReadCSV(path2);
 
             CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
             
 
-            ge.Export(gs.LineGraph1);
-            ge.Export(gs.LineGraph2);
-            ge.Export(gs.ModularProductGraph);
+            //ge.Export(graph1);
+            //ge.Export(graph2);
+            //ge.Export(gs.ModularProductGraphVertices);
 			
 			switch (x)
 			{

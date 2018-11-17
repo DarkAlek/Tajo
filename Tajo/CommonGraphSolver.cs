@@ -14,19 +14,23 @@ namespace Tajo
         private Graph graph2;
         private Graph lineGraph1;
         private Graph lineGraph2;
-        private Graph modularProductGraph;
+        private Graph modularProductGraphVertices;
+        private Graph modularProductGraphEdges;
         private (int x, int y)[] namesToLineGraph1;
         private (int x, int y)[] namesToLineGraph2;
-        private (int x, int y)[] namesToModularProductGraph;
+        private (int x, int y)[] namesToModularProductGraphVertices;
+        private (int x, int y)[] namesToModularProductGraphEdge;
 
         public Graph Graph1 { get => graph1; set => graph1 = value; }
         public Graph Graph2 { get => graph2; set => graph2 = value; }
         public Graph LineGraph1 { get => lineGraph1; set => lineGraph1 = value; }
         public Graph LineGraph2 { get => lineGraph2; set => lineGraph2 = value; }
-        public Graph ModularProductGraph { get => modularProductGraph; set => modularProductGraph = value; }
         public (int x, int y)[] NamesToLineGraph1 { get => namesToLineGraph1; set => namesToLineGraph1 = value; }
         public (int x, int y)[] NamesToLineGraph2 { get => namesToLineGraph2; set => namesToLineGraph2 = value; }
-        public (int x, int y)[] NamesToModularProductGraph { get => namesToModularProductGraph; set => namesToModularProductGraph = value; }
+        public Graph ModularProductGraphVertices { get => modularProductGraphVertices; set => modularProductGraphVertices = value; }
+        public Graph ModularProductGraphEdge { get => modularProductGraphEdges; set => modularProductGraphEdges = value; }
+        public (int x, int y)[] NamesToModularProductGraphVertices { get => namesToModularProductGraphVertices; set => namesToModularProductGraphVertices = value; }
+        public (int x, int y)[] NamesToModularProductGraphEdge { get => namesToModularProductGraphEdge; set => namesToModularProductGraphEdge = value; }
 
         public CommonGraphSolver(Graph graph1, Graph graph2)
         {
@@ -34,7 +38,8 @@ namespace Tajo
             this.Graph2 = graph2;
             lineGraph1 = CreateLineGraph(graph1, out namesToLineGraph1);
             lineGraph2 = CreateLineGraph(graph2, out namesToLineGraph2);
-            modularProductGraph = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraph);
+            modularProductGraphVertices = CreateModularGraph(graph1, graph2, out namesToModularProductGraphVertices);
+            modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdge);
         }
 
         private Graph CreateLineGraph(Graph graph, out (int x, int y)[] names)
@@ -167,25 +172,48 @@ namespace Tajo
 
         }
 
-        public int[,] ExactAlghoritm()
+
+        public int[,] ExactAlghoritmVertices()
         {
             //TO DO
-            Graph graph = modularProductGraph;
+            Graph graph = modularProductGraphVertices;
 
             return null;
         }
 
-        public int[,] ApproximateAlgorithm1()
+        public int[,] ApproximateAlgorithm1Vertices()
         {
             //TO DO
-            Graph graph = modularProductGraph;
+            Graph graph = modularProductGraphVertices;
             return null;
         }
 
-        public int[,] ApproximateAlgorithm2()
+        public int[,] ApproximateAlgorithm2Vertices()
         {
             //TO DO
-            Graph graph = modularProductGraph;
+            Graph graph = modularProductGraphVertices;
+            return null;
+        }
+
+        public int[,] ExactAlghoritmEdge()
+        {
+            //TO DO
+            Graph graph = modularProductGraphEdges;
+
+            return null;
+        }
+
+        public int[,] ApproximateAlgorithm1Edge()
+        {
+            //TO DO
+            Graph graph = modularProductGraphEdges;
+            return null;
+        }
+
+        public int[,] ApproximateAlgorithm2Edge()
+        {
+            //TO DO
+            Graph graph = modularProductGraphEdges;
             return null;
         }
 
