@@ -40,16 +40,16 @@ namespace Tajo
 			{
 				case '1':
 					Console.WriteLine("Exact algorithm");
-					//
+					// TO DO
 					break;
 				case '2':
 					Console.WriteLine("Approximate no.1");
-					//
-					break;
+                    // TO DO
+                    break;
 				case '3':
 					Console.WriteLine("Approximate no.2");
-					//
-					break;
+                    // TO DO
+                    break;
 				default:
 					break;
 			}
