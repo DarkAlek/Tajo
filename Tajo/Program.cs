@@ -30,17 +30,20 @@ namespace Tajo
             var graph2 = GraphReader.ReadCSV(path2);
 
             CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
-            
 
-            //ge.Export(graph1);
-            //ge.Export(graph2);
+            //ge.Export(gs.Graph1);
+            //ge.Export(gs.Graph2);
+            //ge.Export(gs.LineGraph1);
+            //ge.Export(gs.LineGraph2);
             //ge.Export(gs.ModularProductGraphVertices);
 			
 			switch (x)
 			{
 				case '1':
 					Console.WriteLine("Exact algorithm");
-					// TO DO
+                    // TO DO
+                    gs.ExactAlghoritmVertices();
+                    gs.ExactAlghoritmEdges();
 					break;
 				case '2':
 					Console.WriteLine("Approximate no.1");
