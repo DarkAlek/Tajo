@@ -19,7 +19,7 @@ namespace Tajo
         private (int x, int y)[] namesToLineGraph1;
         private (int x, int y)[] namesToLineGraph2;
         private (int x, int y)[] namesToModularProductGraphVertices;
-        private (int x, int y)[] namesToModularProductGraphEdge;
+        private (int x, int y)[] namesToModularProductGraphEdges;
 
         public Graph Graph1 { get => graph1; set => graph1 = value; }
         public Graph Graph2 { get => graph2; set => graph2 = value; }
@@ -30,7 +30,7 @@ namespace Tajo
         public Graph ModularProductGraphVertices { get => modularProductGraphVertices; set => modularProductGraphVertices = value; }
         public Graph ModularProductGraphEdge { get => modularProductGraphEdges; set => modularProductGraphEdges = value; }
         public (int x, int y)[] NamesToModularProductGraphVertices { get => namesToModularProductGraphVertices; set => namesToModularProductGraphVertices = value; }
-        public (int x, int y)[] NamesToModularProductGraphEdge { get => namesToModularProductGraphEdge; set => namesToModularProductGraphEdge = value; }
+        public (int x, int y)[] NamesToModularProductGraphEdge { get => namesToModularProductGraphEdges; set => namesToModularProductGraphEdges = value; }
 
         public CommonGraphSolver(Graph graph1, Graph graph2)
         {
@@ -39,7 +39,7 @@ namespace Tajo
             lineGraph1 = CreateLineGraph(graph1, out namesToLineGraph1);
             lineGraph2 = CreateLineGraph(graph2, out namesToLineGraph2);
             modularProductGraphVertices = CreateModularGraph(graph1, graph2, out namesToModularProductGraphVertices);
-            modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdge);
+            modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
         }
 
         private Graph CreateLineGraph(Graph graph, out (int x, int y)[] names)
@@ -122,16 +122,85 @@ namespace Tajo
             return graph;
         }
 
-        private int[,] TranslateResultCliqueToSolutionVertices(Graph g)
+        private Dictionary<int, int> TranslateResultCliqueToSolutionVertices(HashSet<int> clique)
         {
             // TO DO
-            return null;
+            Dictionary<int, int> result = new Dictionary<int, int>();
+            int i = 0;
+
+            foreach(var v in clique)
+            {
+                result.Add(namesToModularProductGraphVertices[v].x, namesToModularProductGraphVertices[v].y);
+            
+                i++;
+            }
+
+            return result;
         }
 
-        private int[,] TranslateResultCliqueToSolutionEdges(Graph g)
+        private  Dictionary<int, int> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
         {
             // TO DO
-            return null;
+            Dictionary<(int x, int y), (int x, int y)> resultPom = new Dictionary<(int x, int y), (int x, int y)>();
+            Dictionary<int, int> result = new Dictionary<int, int>();
+
+            foreach (var v in clique)
+            {
+                resultPom.Add(namesToLineGraph1[namesToModularProductGraphEdges[v].x], namesToLineGraph2[namesToModularProductGraphEdges[v].y]);
+            }
+
+            Graph gPom1 = new AdjacencyMatrixGraph(false, resultPom.Count + 1);
+            Graph gPom2 = new AdjacencyMatrixGraph(false, resultPom.Count + 1);
+
+
+            foreach (var el in resultPom.Keys)
+            {
+                gPom1.AddEdge(el.x, el.y);
+
+            }
+
+            foreach (var el in resultPom.Values)
+            {
+                gPom2.AddEdge(el.x, el.y);
+
+            }
+
+            // visualize common graphs
+            //GraphExport ge = new GraphExport();
+            //ge.Export(gPom1);
+            //ge.Export(gPom2);
+
+            for (int v = 0; v < gPom1.VerticesCount; ++v)
+            {
+                foreach(var e in gPom1.OutEdges(v))
+                {
+                    if(resultPom.Keys.Contains((e.From, e.To)))
+                    {
+                        if (!result.Keys.Contains(e.From))
+                        {
+                            result.Add(e.From, resultPom[(e.From, e.To)].x);
+                        }
+                        if(!result.Keys.Contains(e.To))
+                        {
+                            result.Add(e.To, resultPom[(e.From, e.To)].y);
+                        }
+
+                    }
+                }
+            }
+
+            // delta-Y exchange check 
+            IEnumerable<int> keys = result.Keys;
+            foreach(var key in keys)
+            {
+                if(gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
+                {
+                    result.Remove(key);
+                }
+            }
+
+
+            return result;
         }
 
         private int MaxDegree(Graph g)
@@ -232,7 +301,7 @@ namespace Tajo
         }
 
 
-        public int[,] ExactAlghoritmVertices()
+        public Dictionary<int, int> ExactAlghoritmVertices()
         {
             //TO DO
             Graph graph = modularProductGraphVertices;
@@ -248,10 +317,13 @@ namespace Tajo
 
             BronKerbosch(graph, R, P, X, ref C);
 
-            return null;
+            //translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
+
+            return result;
         }
 
-        public int[,] ExactAlghoritmEdges()
+        public Dictionary<int, int> ExactAlghoritmEdges()
         {
             //TO DO
             Graph graph = modularProductGraphEdges;
@@ -267,31 +339,34 @@ namespace Tajo
 
             BronKerbosch(graph, R, P, X, ref C);
 
-            return null;
+            // translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+
+            return result;
         }
 
-        public int[,] ApproximateAlgorithm1Vertices()
+        public Dictionary<int, int> ApproximateAlgorithm1Vertices()
         {
             //TO DO
             Graph graph = modularProductGraphVertices;
             return null;
         }
 
-        public int[,] ApproximateAlgorithm1Edges()
+        public Dictionary<int, int> ApproximateAlgorithm1Edges()
         {
             //TO DO
             Graph graph = modularProductGraphEdges;
             return null;
         }
 
-        public int[,] ApproximateAlgorithm2Vertices()
+        public Dictionary<int, int> ApproximateAlgorithm2Vertices()
         {
             //TO DO
             Graph graph = modularProductGraphVertices;
             return null;
         }
 
-        public int[,] ApproximateAlgorithm2Edges()
+        public Dictionary<int, int> ApproximateAlgorithm2Edges()
         {
             //TO DO
             Graph graph = modularProductGraphEdges;
