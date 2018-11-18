@@ -124,7 +124,6 @@ namespace Tajo
 
         private Dictionary<int, int> TranslateResultCliqueToSolutionVertices(HashSet<int> clique)
         {
-            // TO DO
             Dictionary<int, int> result = new Dictionary<int, int>();
             int i = 0;
 
@@ -140,7 +139,6 @@ namespace Tajo
 
         private  Dictionary<int, int> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
         {
-            // TO DO
             Dictionary<(int x, int y), (int x, int y)> resultPom = new Dictionary<(int x, int y), (int x, int y)>();
             Dictionary<int, int> result = new Dictionary<int, int>();
 
@@ -220,7 +218,6 @@ namespace Tajo
 
         private void BronKerbosch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
         {
-            // TO DO
             if(P.Count == 0 && X.Count == 0)
             {
                 if(R.Count > C.Count)
@@ -303,7 +300,6 @@ namespace Tajo
 
         public Dictionary<int, int> ExactAlghoritmVertices()
         {
-            //TO DO
             Graph graph = modularProductGraphVertices;
             HashSet<int> R = new HashSet<int>();
             HashSet<int> P = new HashSet<int>();
@@ -325,7 +321,6 @@ namespace Tajo
 
         public Dictionary<int, int> ExactAlghoritmEdges()
         {
-            //TO DO
             Graph graph = modularProductGraphEdges;
             HashSet<int> R = new HashSet<int>();
             HashSet<int> P = new HashSet<int>();
@@ -339,7 +334,6 @@ namespace Tajo
 
             BronKerbosch(graph, R, P, X, ref C);
 
-            // translate C
             Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
 
             return result;
