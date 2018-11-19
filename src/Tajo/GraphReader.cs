@@ -67,7 +67,7 @@ namespace Tajo
 			g1.Append(g2);
 			path += "[" + selectedOption.ToString() +"].csv";
 			File.WriteAllText(path, g1.ToString());
-            Console.WriteLine("Saving solution to " );
+            Console.WriteLine("Saving solution to " + path);
         }
     }
 }

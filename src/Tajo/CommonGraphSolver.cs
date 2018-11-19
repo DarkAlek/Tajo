@@ -39,7 +39,15 @@ namespace Tajo
             lineGraph1 = CreateLineGraph(graph1, out namesToLineGraph1);
             lineGraph2 = CreateLineGraph(graph2, out namesToLineGraph2);
             modularProductGraphVertices = CreateModularGraph(graph1, graph2, out namesToModularProductGraphVertices);
-            modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
+            try
+            {
+                modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
+            }
+            catch (OutOfMemoryException)
+            {
+                Console.WriteLine("Too many edges to create ModularProductGraphEdges");
+            }
+
         }
 
         private Graph CreateLineGraph(Graph graph, out (int x, int y)[] names)
@@ -85,6 +93,7 @@ namespace Tajo
             var len1 = graph1.VerticesCount;
             var len2 = graph2.VerticesCount;
             var graph = new AdjacencyMatrixGraph(false, len1 * len2);
+            //var graph = new AdjacencyListsGraph<AVLAdjacencyList>(false, len1 * len2);
             (int x, int y)[] namesPom = new (int x, int y)[graph.VerticesCount];
 
             //int[,] nxt = new int[len1 * len2, len1 * len2];
@@ -188,7 +197,7 @@ namespace Tajo
             }
 
             // delta-Y exchange check 
-            IEnumerable<int> keys = result.Keys;
+            IEnumerable<int> keys = result.Keys.ToList();
             foreach(var key in keys)
             {
                 if(gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
@@ -447,22 +456,27 @@ namespace Tajo
 
         public Dictionary<int, int> ExactAlghoritmEdges()
         {
-            Graph graph = modularProductGraphEdges;
-            HashSet<int> R = new HashSet<int>();
-            HashSet<int> P = new HashSet<int>();
-            HashSet<int> X = new HashSet<int>();
-            HashSet<int> C = new HashSet<int>();
-
-            for (int v = 0; v < graph.VerticesCount; ++v)
+            if (modularProductGraphEdges != null)
             {
-                P.Add(v);
+                Graph graph = modularProductGraphEdges;
+                HashSet<int> R = new HashSet<int>();
+                HashSet<int> P = new HashSet<int>();
+                HashSet<int> X = new HashSet<int>();
+                HashSet<int> C = new HashSet<int>();
+
+                for (int v = 0; v < graph.VerticesCount; ++v)
+                {
+                    P.Add(v);
+                }
+
+                BronKerbosch(graph, R, P, X, ref C);
+
+                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+
+                return result;
             }
 
-            BronKerbosch(graph, R, P, X, ref C);
-
-            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
-
-            return result;
+            return null;
         }
 
         public Dictionary<int, int> ApproximateAlgorithm1Vertices()
@@ -483,18 +497,26 @@ namespace Tajo
 
         public Dictionary<int, int> ApproximateAlgorithm1Edges()
         {
-            Graph graph = modularProductGraphEdges;
-            HashSet<int> vertices = new HashSet<int>();
-            for (int v = 0; v < graph.VerticesCount; ++v)
+            if (modularProductGraphEdges != null)
             {
-                vertices.Add(v);
+                Graph graph = modularProductGraphEdges;
+                HashSet<int> vertices = new HashSet<int>();
+                for (int v = 0; v < graph.VerticesCount; ++v)
+                {
+                    vertices.Add(v);
+                }
+
+                HashSet<int> C = Greedy(graph, vertices);
+                //translate C
+                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+
+                return result;
+
             }
 
-            HashSet<int> C = Greedy(graph, vertices);
-            //translate C
-            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+            return null;
 
-            return result;
+
         }
 
         public Dictionary<int, int> ApproximateAlgorithm2Vertices()
@@ -512,12 +534,17 @@ namespace Tajo
         public Dictionary<int, int> ApproximateAlgorithm2Edges()
         {
             //TO DO
-            Graph graph = modularProductGraphEdges;
-            HashSet<int> C = ISRemoval(graph);
-            //translate C
-            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+            if (modularProductGraphEdges != null)
+            {
+                Graph graph = modularProductGraphEdges;
+                HashSet<int> C = ISRemoval(graph);
+                //translate C
+                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                return result;
+            }
 
-            return result;
+            return null;
+
         }
 
     }
