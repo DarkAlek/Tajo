@@ -42,7 +42,7 @@ namespace Tajo
                 return graph;
             }
         }
-		public static void WriteCSV(string path, int selectedOption, Dictionary<int, int> d)
+		public static void WriteCSV<T>(string path, int selectedOption, Dictionary<T, T> d)
 		{
 			var g1 = new StringBuilder();
 			var g2 = new StringBuilder();

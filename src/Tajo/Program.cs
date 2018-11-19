@@ -24,8 +24,8 @@ namespace Tajo
             Console.WriteLine("Reading graphs from .csv...");
 
             // change *.csv name in path to read diffrent graphs
-            var path_input1 = "..\\data\\10_10_A_mistal.csv";
-			var path_input2 = "..\\data\\10_10_B_mistal.csv";
+            var path_input1 = "..\\data\\5_5_A_mistal.csv";
+			var path_input2 = "..\\data\\5_5_B_mistal.csv";
             var graph1 = GraphReader.ReadCSV(path_input1);
             var graph2 = GraphReader.ReadCSV(path_input2);
 
@@ -65,7 +65,7 @@ namespace Tajo
                     output1 = gs.ApproximateAlgorithm1Vertices();
                     if (output1 != null)
                     {
-                        GraphReader.WriteCSV(path_output1, 2, output1);
+                        //GraphReader.WriteCSVVertices(path_output1, 2, output1);
                     }
                     Console.WriteLine("Exact algorithm - computing edges...");
                     output2 = gs.ApproximateAlgorithm1Edges();
@@ -79,7 +79,7 @@ namespace Tajo
                     output1 = gs.ApproximateAlgorithm2Vertices();
                     if (output1 != null)
                     {
-                        GraphReader.WriteCSV(path_output1, 3, output1);
+                        //GraphReader.WriteCSVVertices(path_output1, 3, output1);
                     }
                     Console.WriteLine("Exact algorithm - computing edges...");
                     output2 = gs.ApproximateAlgorithm2Edges();

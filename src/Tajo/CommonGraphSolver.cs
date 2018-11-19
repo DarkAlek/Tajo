@@ -146,7 +146,8 @@ namespace Tajo
             return result;
         }
 
-        private  Dictionary<int, int> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
+        //private Dictionary<int, int> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
+        private Dictionary<(int x, int y), (int x, int y)> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
         {
             Dictionary<(int x, int y), (int x, int y)> resultPom = new Dictionary<(int x, int y), (int x, int y)>();
             Dictionary<int, int> result = new Dictionary<int, int>();
@@ -197,32 +198,26 @@ namespace Tajo
             }
 
             // delta-Y exchange check 
-            IEnumerable<int> keys = result.Keys.ToList();
-            foreach(var key in keys)
+            //IEnumerable<int> keys = result.Keys.ToList();
+            //foreach(var key in keys)
+            //{
+            //    if(gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
+            //    {
+            //        result.Remove(key);
+            //    }
+            //}
+
+            // delta-Y exchange check 
+            IEnumerable<(int x, int y)> keys = resultPom.Keys.ToList();
+            foreach (var key in keys)
             {
-                if(gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
+                if (gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].x) || gPom1.OutDegree(key.y) != gPom2.OutDegree(resultPom[key].y))
                 {
-                    result.Remove(key);
+                    resultPom.Remove(key);
                 }
             }
 
-
-            return result;
-        }
-
-        private int MaxDegree(Graph g)
-        {
-            int max = int.MinValue;
-            int id = -1;
-            for (int i = 0; i < g.VerticesCount; i++)
-            {
-                if (g.InDegree(i) > max)
-                {
-                    max = g.InDegree(i);
-                    id = i;
-                }
-            }
-            return id;
+            return resultPom;
         }
 
         private void BronKerbosch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
@@ -454,7 +449,7 @@ namespace Tajo
             return result;
         }
 
-        public Dictionary<int, int> ExactAlghoritmEdges()
+        public Dictionary<(int x, int y), (int x, int y)> ExactAlghoritmEdges()
         {
             if (modularProductGraphEdges != null)
             {
@@ -471,7 +466,8 @@ namespace Tajo
 
                 BronKerbosch(graph, R, P, X, ref C);
 
-                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
                 return result;
             }
@@ -495,7 +491,7 @@ namespace Tajo
             return result;
         }
 
-        public Dictionary<int, int> ApproximateAlgorithm1Edges()
+        public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm1Edges()
         {
             if (modularProductGraphEdges != null)
             {
@@ -508,7 +504,8 @@ namespace Tajo
 
                 HashSet<int> C = Greedy(graph, vertices);
                 //translate C
-                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
                 return result;
 
@@ -531,7 +528,7 @@ namespace Tajo
             return result;
         }
 
-        public Dictionary<int, int> ApproximateAlgorithm2Edges()
+        public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm2Edges()
         {
             //TO DO
             if (modularProductGraphEdges != null)
@@ -539,7 +536,9 @@ namespace Tajo
                 Graph graph = modularProductGraphEdges;
                 HashSet<int> C = ISRemoval(graph);
                 //translate C
-                Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
+
                 return result;
             }
 
