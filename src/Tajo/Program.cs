@@ -24,10 +24,10 @@ namespace Tajo
             Console.WriteLine("Reading graphs from .csv...");
 
 
-            var path1 = "..\\..\\Graphs\\graph3.csv";
-			var path2 = "..\\..\\Graphs\\graph4.csv";
-            var graph1 = GraphReader.ReadCSV(path1);
-            var graph2 = GraphReader.ReadCSV(path2);
+            var path_input1 = "..\\data\\7_8_A_mistal.csv";
+			var path_input2 = "..\\data\\7_8_B_mistal.csv";
+            var graph1 = GraphReader.ReadCSV(path_input1);
+            var graph2 = GraphReader.ReadCSV(path_input2);
 
             CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
 
@@ -36,25 +36,34 @@ namespace Tajo
             //ge.Export(gs.LineGraph1);
             //ge.Export(gs.LineGraph2);
             //ge.Export(gs.ModularProductGraphVertices);
-			
-			switch (x)
+            //ge.Export(gs.ModularProductGraphEdges);
+            var path_output1 = path_input1.Remove(path_input1.Length - 4) + "_result1";
+            var path_output2 = path_input2.Remove(path_input2.Length - 4) + "_result2";
+
+            switch (x)
 			{
 				case '1':
 					Console.WriteLine("Exact algorithm");
                     // TO DO
                     var output1 = gs.ExactAlghoritmVertices();
                     var output2 =  gs.ExactAlghoritmEdges();
-					GraphReader.WriteCSV("..\\..\\Graphs\\result1", 1, output1);
-					GraphReader.WriteCSV("..\\..\\Graphs\\result2", 1, output2);
+					GraphReader.WriteCSV(path_output1, 1, output1);
+					GraphReader.WriteCSV(path_output2, 1, output2);
 
 					break;
 				case '2':
 					Console.WriteLine("Approximate no.1");
-                    // TO DO
+                    output1 = gs.ApproximateAlgorithm1Vertices();
+                    output2 = gs.ApproximateAlgorithm1Edges();
+                    GraphReader.WriteCSV(path_output1, 2, output1);
+                    GraphReader.WriteCSV(path_output2, 2, output2);
                     break;
 				case '3':
 					Console.WriteLine("Approximate no.2");
-                    // TO DO
+                    output1 = gs.ApproximateAlgorithm2Vertices();
+                    output2 = gs.ApproximateAlgorithm2Edges();
+                    GraphReader.WriteCSV(path_output1, 3, output1);
+                    GraphReader.WriteCSV(path_output2, 3, output2);
                     break;
 				default:
 					break;

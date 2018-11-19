@@ -46,8 +46,10 @@ namespace Tajo
 		{
 			var g1 = new StringBuilder();
 			var g2 = new StringBuilder();
+            var l = d.OrderBy(key => key.Key);
+            d = l.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
 
-			bool first = true;
+            bool first = true;
 			foreach (var x in d)
 			{
 				if (!first)
@@ -65,6 +67,7 @@ namespace Tajo
 			g1.Append(g2);
 			path += "[" + selectedOption.ToString() +"].csv";
 			File.WriteAllText(path, g1.ToString());
-		}
+            Console.WriteLine("Saving solution to " );
+        }
     }
 }

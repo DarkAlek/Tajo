@@ -276,9 +276,9 @@ namespace Tajo
         }
 
 
-        private HashSet<int> Greedy(Graph g,HashSet<int> vertices)
+        private HashSet<int> Greedy(Graph g, HashSet<int> vertices)
         {
-			// TO DO
+
 			if (vertices.Count == 0)
 			{
 				return new HashSet<int>();
@@ -305,35 +305,121 @@ namespace Tajo
 
 					i = 0;
 				}
-				var hs = new HashSet<int>();
-				
-				for (int j = 0; j < g.VerticesCount; j++)
-				{
-					if (!double.IsNaN(g.GetEdgeWeight(pivot, j)) && vertices.Contains(j))
-					{
-						hs.Add(j);
-					}
-				}
+				var neighbours = new HashSet<int>();
 
-				var hs1  = Greedy(g, hs);
-				hs1.Add(pivot);
-				return hs1;
+                //for (int j = 0; j < g.VerticesCount; j++)
+                //{
+                //    if (!double.IsNaN(g.GetEdgeWeight(pivot, j)) && vertices.Contains(j))
+                //    {
+                //        hs.Add(j);
+                //    }
+                //}
+
+                foreach (var e in g.OutEdges(pivot))
+                {
+                    if (vertices.Contains(e.To))
+                    {
+                        neighbours.Add(e.To);
+                    }
+
+                }
+
+                var C  = Greedy(g, neighbours);
+				C.Add(pivot);
+				return C;
 			}
 
         }
 
 		
-		private Graph Ramsey(Graph g)
+		private (HashSet<int>, HashSet<int>) Ramsey(Graph g, HashSet<int> vertices)
         {
-            // TO DO
-            return null;
+            if (vertices.Count == 0)
+            {
+                return (new HashSet<int>(), new HashSet<int>());
+            }
+
+            else
+            {
+                int i = 0;
+                int pivot = 0;
+                int maxDegree = int.MinValue;
+
+                foreach (var v in vertices)
+                {
+                    foreach (var e in g.OutEdges(v))
+                    {
+                        if (vertices.Contains(e.To)) i++;
+                    }
+
+                    if (i > maxDegree)
+                    {
+                        maxDegree = i;
+                        pivot = v;
+                    }
+
+                    i = 0;
+                }
+                var neighbours = new HashSet<int>();
+                var notNeighbours = new HashSet<int>();
+
+
+                foreach (var e in g.OutEdges(pivot))
+                {
+                    if (vertices.Contains(e.To))
+                    {
+                        neighbours.Add(e.To);
+                    }
+
+                }
+
+                notNeighbours = new HashSet<int>(vertices.Except(neighbours));
+                notNeighbours.Remove(pivot);
+
+                (HashSet<int> C1, HashSet<int> I1) = Ramsey(g, neighbours);
+                (HashSet<int> C2, HashSet<int> I2) = Ramsey(g, notNeighbours);
+
+                C1.Add(pivot);
+                I2.Add(pivot);
+
+                HashSet<int> CR = C1.Count >= C2.Count ? C1 : C2;
+                HashSet<int> IR = I1.Count >= I2.Count ? I1 : I2;
+
+                return (CR, IR);
+            }
 
         }
 
-        private Graph ISRemoval(Graph g)
+        private HashSet<int> ISRemoval(Graph g)
         {
-            // TO DO
-            return null;
+            List<(HashSet<int>, HashSet<int>)> results = new List<(HashSet<int>, HashSet<int>)>();
+            HashSet<int> vertices = new HashSet<int>();
+            for (int v = 0; v < g.VerticesCount; ++v)
+            {
+                vertices.Add(v);
+            }
+
+            results.Add(Ramsey(g, vertices));
+
+            while(vertices.Count > 0)
+            {
+                vertices = new HashSet<int>(vertices.Except(results.Last().Item2));
+                results.Add(Ramsey(g, vertices));
+            }
+
+            HashSet<int> maxC = new HashSet<int>();
+            int maxCount = int.MinValue;
+
+            foreach(var el in results)
+            {
+                if(el.Item1.Count > maxCount)
+                {
+                    maxC = el.Item1;
+                    maxCount = el.Item1.Count;
+                }
+            }
+
+            return maxC;
 
         }
 
@@ -381,30 +467,57 @@ namespace Tajo
 
         public Dictionary<int, int> ApproximateAlgorithm1Vertices()
         {
-            //TO DO
             Graph graph = modularProductGraphVertices;
-            return null;
+            HashSet<int> vertices = new HashSet<int>();
+            for (int v = 0; v < graph.VerticesCount; ++v)
+            {
+                vertices.Add(v);
+            }
+
+            HashSet<int> C =  Greedy(graph, vertices);
+            //translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
+
+            return result;
         }
 
         public Dictionary<int, int> ApproximateAlgorithm1Edges()
         {
-            //TO DO
             Graph graph = modularProductGraphEdges;
-            return null;
+            HashSet<int> vertices = new HashSet<int>();
+            for (int v = 0; v < graph.VerticesCount; ++v)
+            {
+                vertices.Add(v);
+            }
+
+            HashSet<int> C = Greedy(graph, vertices);
+            //translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+
+            return result;
         }
 
         public Dictionary<int, int> ApproximateAlgorithm2Vertices()
         {
             //TO DO
             Graph graph = modularProductGraphVertices;
-            return null;
+
+            HashSet<int> C = ISRemoval(graph);
+            //translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
+
+            return result;
         }
 
         public Dictionary<int, int> ApproximateAlgorithm2Edges()
         {
             //TO DO
             Graph graph = modularProductGraphEdges;
-            return null;
+            HashSet<int> C = ISRemoval(graph);
+            //translate C
+            Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
+
+            return result;
         }
 
     }
