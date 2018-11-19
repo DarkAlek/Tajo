@@ -65,7 +65,7 @@ namespace Tajo
                     output1 = gs.ApproximateAlgorithm1Vertices();
                     if (output1 != null)
                     {
-                        //GraphReader.WriteCSVVertices(path_output1, 2, output1);
+                        GraphReader.WriteCSV(path_output1, 2, output1);
                     }
                     Console.WriteLine("Exact algorithm - computing edges...");
                     output2 = gs.ApproximateAlgorithm1Edges();
@@ -79,7 +79,7 @@ namespace Tajo
                     output1 = gs.ApproximateAlgorithm2Vertices();
                     if (output1 != null)
                     {
-                        //GraphReader.WriteCSVVertices(path_output1, 3, output1);
+                        GraphReader.WriteCSV(path_output1, 3, output1);
                     }
                     Console.WriteLine("Exact algorithm - computing edges...");
                     output2 = gs.ApproximateAlgorithm2Edges();
