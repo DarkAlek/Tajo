@@ -279,14 +279,54 @@ namespace Tajo
         }
 
 
-        private Graph Greedy(Graph g)
+        private HashSet<int> Greedy(Graph g,HashSet<int> vertices)
         {
-            // TO DO
-            return null;
+			// TO DO
+			if (vertices.Count == 0)
+			{
+				return new HashSet<int>();
+			}
+
+			else
+			{
+				int i = 0;
+				int pivot=0;
+				int maxDegree = int.MinValue;
+
+				foreach (var v in vertices)
+				{
+					foreach (var e in g.OutEdges(v))
+					{
+						if (vertices.Contains(e.To)) i++;
+					}
+
+					if (i > maxDegree)
+					{
+						maxDegree = i;
+						pivot = v;
+					}
+
+					i = 0;
+				}
+				var hs = new HashSet<int>();
+				
+				for (int j = 0; j < g.VerticesCount; j++)
+				{
+					if (!double.IsNaN(g.GetEdgeWeight(pivot, j)) && vertices.Contains(j))
+					{
+						hs.Add(j);
+					}
+				}
+
+				var hs1  = Greedy(g, hs);
+				hs1.Add(pivot);
+				return hs1;
+			}
 
         }
 
-        private Graph Ramsey(Graph g)
+		
+		private Graph Ramsey(Graph g)
         {
             // TO DO
             return null;

@@ -42,8 +42,11 @@ namespace Tajo
 				case '1':
 					Console.WriteLine("Exact algorithm");
                     // TO DO
-                    gs.ExactAlghoritmVertices();
-                    gs.ExactAlghoritmEdges();
+                    var output1 = gs.ExactAlghoritmVertices();
+                    var output2 =  gs.ExactAlghoritmEdges();
+					GraphReader.WriteCSV("..\\..\\Graphs\\result1", 1, output1);
+					GraphReader.WriteCSV("..\\..\\Graphs\\result2", 1, output2);
+
 					break;
 				case '2':
 					Console.WriteLine("Approximate no.1");

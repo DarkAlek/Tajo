@@ -11,7 +11,6 @@ namespace Tajo
 {
     public class GraphReader
     {
-
         public static Graph ReadCSV(string path)
         {
             using (var reader = new StreamReader(path))
@@ -43,5 +42,29 @@ namespace Tajo
                 return graph;
             }
         }
+		public static void WriteCSV(string path, int selectedOption, Dictionary<int, int> d)
+		{
+			var g1 = new StringBuilder();
+			var g2 = new StringBuilder();
+
+			bool first = true;
+			foreach (var x in d)
+			{
+				if (!first)
+				{
+					g1.Append(',');
+					g2.Append(',');
+					
+				}
+				g1.Append(x.Key);
+				g2.Append(x.Value);
+				first = false;
+			}
+
+			g1.Append("\n");
+			g1.Append(g2);
+			path += "[" + selectedOption.ToString() +"].csv";
+			File.WriteAllText(path, g1.ToString());
+		}
     }
 }
