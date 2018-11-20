@@ -24,8 +24,8 @@ namespace Tajo
             Console.WriteLine("Reading graphs from .csv...");
 
             // change *.csv name in path to read diffrent graphs
-            var path_input1 = "..\\data\\5_5_A_mistal.csv";
-			var path_input2 = "..\\data\\5_5_B_mistal.csv";
+            var path_input1 = "..\\data\\7_10_A_mistal.csv";
+			var path_input2 = "..\\data\\7_10_B_mistal.csv";
             var graph1 = GraphReader.ReadCSV(path_input1);
             var graph2 = GraphReader.ReadCSV(path_input2);
 
@@ -40,7 +40,7 @@ namespace Tajo
             //ge.Export(gs.ModularProductGraphVertices);
             //ge.Export(gs.ModularProductGraphEdges);
             var path_output1 = path_input1.Remove(path_input1.Length - 12) + "result1";
-            var path_output2 = path_input2.Remove(path_input2.Length - 12) + "result2";
+            var path_output2 = path_input1.Remove(path_input2.Length - 12) + "result2";
 
             switch (x)
 			{
@@ -61,13 +61,13 @@ namespace Tajo
 
 					break;
 				case '2':
-                    Console.WriteLine("Exact algorithm - computing vertices...");
+                    Console.WriteLine("ApproximateAlgorithm1 - computing vertices...");
                     output1 = gs.ApproximateAlgorithm1Vertices();
                     if (output1 != null)
                     {
                         GraphReader.WriteCSV(path_output1, 2, output1);
                     }
-                    Console.WriteLine("Exact algorithm - computing edges...");
+                    Console.WriteLine("ApproximateAlgorithm1- computing edges...");
                     output2 = gs.ApproximateAlgorithm1Edges();
                     if (output2 != null)
                     {
@@ -75,13 +75,13 @@ namespace Tajo
                     }
                     break;
 				case '3':
-                    Console.WriteLine("Exact algorithm - computing vertices...");
+                    Console.WriteLine("ApproximateAlgorithm2 - computing vertices...");
                     output1 = gs.ApproximateAlgorithm2Vertices();
                     if (output1 != null)
                     {
                         GraphReader.WriteCSV(path_output1, 3, output1);
                     }
-                    Console.WriteLine("Exact algorithm - computing edges...");
+                    Console.WriteLine("ApproximateAlgorithm2 - computing edges...");
                     output2 = gs.ApproximateAlgorithm2Edges();
                     if (output2 != null)
                     {

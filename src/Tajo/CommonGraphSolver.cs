@@ -157,8 +157,9 @@ namespace Tajo
                 resultPom.Add(namesToLineGraph1[namesToModularProductGraphEdges[v].x], namesToLineGraph2[namesToModularProductGraphEdges[v].y]);
             }
 
-            Graph gPom1 = new AdjacencyMatrixGraph(false, resultPom.Count + 1);
-            Graph gPom2 = new AdjacencyMatrixGraph(false, resultPom.Count + 1);
+
+            Graph gPom1 = new AdjacencyMatrixGraph(false, resultPom.Keys.OrderBy(key => key.y).Last().y + 1);
+            Graph gPom2 = new AdjacencyMatrixGraph(false, resultPom.Values.OrderBy(value => value.y).Last().y + 1);
 
 
             foreach (var el in resultPom.Keys)
@@ -178,30 +179,49 @@ namespace Tajo
             //ge.Export(gPom1);
             //ge.Export(gPom2);
 
-            for (int v = 0; v < gPom1.VerticesCount; ++v)
-            {
-                foreach(var e in gPom1.OutEdges(v))
-                {
-                    if(resultPom.Keys.Contains((e.From, e.To)))
-                    {
-                        if (!result.Keys.Contains(e.From))
-                        {
-                            result.Add(e.From, resultPom[(e.From, e.To)].x);
-                        }
-                        if(!result.Keys.Contains(e.To))
-                        {
-                            result.Add(e.To, resultPom[(e.From, e.To)].y);
-                        }
+            //delta - Y exchange check(if actually isomorphic)
+            //for (int v = 0; v < gPom1.VerticesCount; ++v)
+            //{
+            //    foreach (var e in gPom1.OutEdges(v))
+            //    {
+            //        if (resultPom.Keys.Contains((e.From, e.To)))
+            //        {
+            //            if (!result.Keys.Contains(e.From))
+            //            {
+            //                if (gPom1.OutDegree(e.From) == gPom2.OutDegree(resultPom[(e.From, e.To)].x))
+            //                {
+            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].x))
+            //                        result.Add(e.From, resultPom[(e.From, e.To)].x);
+            //                }
+            //                else if (gPom1.OutDegree(e.From) == gPom2.OutDegree(resultPom[(e.From, e.To)].y))
+            //                {
+            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].y))
+            //                        result.Add(e.From, resultPom[(e.From, e.To)].y);
+            //                }
+            //            }
+            //            if (!result.Keys.Contains(e.To))
+            //            {
+            //                if (gPom1.OutDegree(e.To) == gPom2.OutDegree(resultPom[(e.From, e.To)].x))
+            //                {
+            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].x))
+            //                        result.Add(e.To, resultPom[(e.From, e.To)].x);
+            //                }
+            //                else if (gPom1.OutDegree(e.To) == gPom2.OutDegree(resultPom[(e.From, e.To)].y))
+            //                {
+            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].y))
+            //                        result.Add(e.To, resultPom[(e.From, e.To)].y);
+            //                }
+            //            }
 
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
 
             // delta-Y exchange check 
-            //IEnumerable<int> keys = result.Keys.ToList();
-            //foreach(var key in keys)
+            //IEnumerable<int> keys1 = result.Keys.ToList();
+            //foreach (var key in keys1)
             //{
-            //    if(gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
+            //    if (gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
             //    {
             //        result.Remove(key);
             //    }
@@ -211,11 +231,18 @@ namespace Tajo
             IEnumerable<(int x, int y)> keys = resultPom.Keys.ToList();
             foreach (var key in keys)
             {
-                if (gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].x) || gPom1.OutDegree(key.y) != gPom2.OutDegree(resultPom[key].y))
+                if (gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].x) && gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].y))
                 {
+                    gPom1.DelEdge(key.x, key.y);
+                    gPom2.DelEdge(resultPom[key].x, resultPom[key].y);
                     resultPom.Remove(key);
                 }
             }
+
+            // visualize result graphs (after check)
+            //GraphExport ge = new GraphExport();
+            //ge.Export(gPom1);
+            //ge.Export(gPom2);
 
             return resultPom;
         }
