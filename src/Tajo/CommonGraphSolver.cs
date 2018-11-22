@@ -15,7 +15,7 @@ namespace Tajo
         private Graph lineGraph1;
         private Graph lineGraph2;
         private Graph modularProductGraphVertices;
-        private Graph modularProductGraphEdges;
+        //private Graph modularProductGraphEdges;
         private (int x, int y)[] namesToLineGraph1;
         private (int x, int y)[] namesToLineGraph2;
         private (int x, int y)[] namesToModularProductGraphVertices;
@@ -28,7 +28,7 @@ namespace Tajo
         public (int x, int y)[] NamesToLineGraph1 { get => namesToLineGraph1; set => namesToLineGraph1 = value; }
         public (int x, int y)[] NamesToLineGraph2 { get => namesToLineGraph2; set => namesToLineGraph2 = value; }
         public Graph ModularProductGraphVertices { get => modularProductGraphVertices; set => modularProductGraphVertices = value; }
-        public Graph ModularProductGraphEdge { get => modularProductGraphEdges; set => modularProductGraphEdges = value; }
+        //public Graph ModularProductGraphEdge { get => modularProductGraphEdges; set => modularProductGraphEdges = value; }
         public (int x, int y)[] NamesToModularProductGraphVertices { get => namesToModularProductGraphVertices; set => namesToModularProductGraphVertices = value; }
         public (int x, int y)[] NamesToModularProductGraphEdge { get => namesToModularProductGraphEdges; set => namesToModularProductGraphEdges = value; }
 
@@ -39,14 +39,14 @@ namespace Tajo
             lineGraph1 = CreateLineGraph(graph1, out namesToLineGraph1);
             lineGraph2 = CreateLineGraph(graph2, out namesToLineGraph2);
             modularProductGraphVertices = CreateModularGraph(graph1, graph2, out namesToModularProductGraphVertices);
-            try
-            {
-                modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
-            }
-            catch (OutOfMemoryException)
-            {
-                Console.WriteLine("Too many edges to create ModularProductGraphEdges");
-            }
+            //try
+            //{
+            //    modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
+            //}
+            //catch (OutOfMemoryException)
+            //{
+            //    Console.WriteLine("Too many edges to create ModularProductGraphEdges");
+            //}
 
         }
 
@@ -124,10 +124,10 @@ namespace Tajo
             Dictionary<int, int> result = new Dictionary<int, int>();
             int i = 0;
 
-            foreach(var v in clique)
+            foreach (var v in clique)
             {
                 result.Add(namesToModularProductGraphVertices[v].x, namesToModularProductGraphVertices[v].y);
-            
+
                 i++;
             }
 
@@ -234,12 +234,19 @@ namespace Tajo
             return resultPom;
         }
 
-        // TODO: Improve BronKerbosh with Koch modification (connected graph)
-        private void BronKerbosch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
+
+        // TODO: Develop init alghoritm for BronKerboschKoch (connected graph) (D set)
+        private void InitBronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
         {
-            if(P.Count == 0 && X.Count == 0)
+
+        }
+
+        // TODO: Improve BronKerboschKoch with Koch modification (connected graph) (D set)
+        private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
+        {
+            if (P.Count == 0 && X.Count == 0)
             {
-                if(R.Count > C.Count)
+                if (R.Count > C.Count)
                 {
                     C = R;
                 }
@@ -251,14 +258,14 @@ namespace Tajo
                 int pivot = -1;
                 int maxDegreeInP = int.MinValue;
 
-                foreach(var v in PuX)
+                foreach (var v in PuX)
                 {
-                    foreach(var e in g.OutEdges(v))
+                    foreach (var e in g.OutEdges(v))
                     {
                         if (P.Contains(e.To)) i++;
                     }
-                    
-                    if(i > maxDegreeInP)
+
+                    if (i > maxDegreeInP)
                     {
                         maxDegreeInP = i;
                         pivot = v;
@@ -269,13 +276,13 @@ namespace Tajo
 
                 HashSet<int> Nu = new HashSet<int>();
 
-                foreach(var e in g.OutEdges(pivot))
+                foreach (var e in g.OutEdges(pivot))
                 {
                     Nu.Add(e.To);
                 }
 
                 HashSet<int> PeNu = new HashSet<int>(P.Except(Nu));
-                foreach(var v in PeNu)
+                foreach (var v in PeNu)
                 {
                     HashSet<int> Nv = new HashSet<int>();
 
@@ -286,7 +293,7 @@ namespace Tajo
                     HashSet<int> vSet = new HashSet<int>();
                     vSet.Add(v);
 
-                    BronKerbosch(g, new HashSet<int>(R.Union(vSet)), new HashSet<int>(P.Intersect(Nv)), new HashSet<int>(X.Intersect(Nv)), ref C);
+                    BronKerboschKoch(g, new HashSet<int>(R.Union(vSet)), new HashSet<int>(P.Intersect(Nv)), new HashSet<int>(X.Intersect(Nv)), ref C);
                     P.Remove(v);
                     X.Add(v);
 
@@ -298,41 +305,33 @@ namespace Tajo
         private HashSet<int> Greedy(Graph g, HashSet<int> vertices)
         {
 
-			if (vertices.Count == 0)
-			{
-				return new HashSet<int>();
-			}
+            if (vertices.Count == 0)
+            {
+                return new HashSet<int>();
+            }
 
-			else
-			{
-				int i = 0;
-				int pivot=0;
-				int maxDegree = int.MinValue;
+            else
+            {
+                int i = 0;
+                int pivot = 0;
+                int maxDegree = int.MinValue;
 
-				foreach (var v in vertices)
-				{
-					foreach (var e in g.OutEdges(v))
-					{
-						if (vertices.Contains(e.To)) i++;
-					}
+                foreach (var v in vertices)
+                {
+                    foreach (var e in g.OutEdges(v))
+                    {
+                        if (vertices.Contains(e.To)) i++;
+                    }
 
-					if (i > maxDegree)
-					{
-						maxDegree = i;
-						pivot = v;
-					}
+                    if (i > maxDegree)
+                    {
+                        maxDegree = i;
+                        pivot = v;
+                    }
 
-					i = 0;
-				}
-				var neighbours = new HashSet<int>();
-
-                //for (int j = 0; j < g.VerticesCount; j++)
-                //{
-                //    if (!double.IsNaN(g.GetEdgeWeight(pivot, j)) && vertices.Contains(j))
-                //    {
-                //        hs.Add(j);
-                //    }
-                //}
+                    i = 0;
+                }
+                var neighbours = new HashSet<int>();
 
                 foreach (var e in g.OutEdges(pivot))
                 {
@@ -343,10 +342,10 @@ namespace Tajo
 
                 }
 
-                var C  = Greedy(g, neighbours);
-				C.Add(pivot);
-				return C;
-			}
+                var C = Greedy(g, neighbours);
+                C.Add(pivot);
+                return C;
+            }
 
         }
 
@@ -420,7 +419,7 @@ namespace Tajo
 
             results.Add(Ramsey(g, vertices));
 
-            while(vertices.Count > 0)
+            while (vertices.Count > 0)
             {
                 vertices = new HashSet<int>(vertices.Except(results.Last().Item2));
                 results.Add(Ramsey(g, vertices));
@@ -429,9 +428,9 @@ namespace Tajo
             HashSet<int> maxC = new HashSet<int>();
             int maxCount = int.MinValue;
 
-            foreach(var el in results)
+            foreach (var el in results)
             {
-                if(el.Item1.Count > maxCount)
+                if (el.Item1.Count > maxCount)
                 {
                     maxC = el.Item1;
                     maxCount = el.Item1.Count;
@@ -451,12 +450,12 @@ namespace Tajo
             HashSet<int> X = new HashSet<int>();
             HashSet<int> C = new HashSet<int>();
 
-            for (int v=0; v <  graph.VerticesCount; ++v)
+            for (int v = 0; v < graph.VerticesCount; ++v)
             {
                 P.Add(v);
             }
 
-            BronKerbosch(graph, R, P, X, ref C);
+            BronKerboschKoch(graph, R, P, X, ref C);
 
             //translate C
             Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
@@ -466,25 +465,25 @@ namespace Tajo
 
         public Dictionary<(int x, int y), (int x, int y)> ExactAlghoritmEdges()
         {
-            if (modularProductGraphEdges != null)
-            {
-                Graph graph = modularProductGraphEdges;
-                HashSet<int> R = new HashSet<int>();
-                HashSet<int> P = new HashSet<int>();
-                HashSet<int> X = new HashSet<int>();
-                HashSet<int> C = new HashSet<int>();
+            //if (modularProductGraphEdges != null)
+            //{
+            //    Graph graph = modularProductGraphEdges;
+            //    HashSet<int> R = new HashSet<int>();
+            //    HashSet<int> P = new HashSet<int>();
+            //    HashSet<int> X = new HashSet<int>();
+            //    HashSet<int> C = new HashSet<int>();
 
-                for (int v = 0; v < graph.VerticesCount; ++v)
-                {
-                    P.Add(v);
-                }
+            //    for (int v = 0; v < graph.VerticesCount; ++v)
+            //    {
+            //        P.Add(v);
+            //    }
 
-                BronKerbosch(graph, R, P, X, ref C);
+            //    BronKerboschKoch(graph, R, P, X, ref C);
 
-                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
+            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
-                return result;
-            }
+            //    return result;
+            //}
 
             return null;
         }
@@ -498,7 +497,7 @@ namespace Tajo
                 vertices.Add(v);
             }
 
-            HashSet<int> C =  Greedy(graph, vertices);
+            HashSet<int> C = Greedy(graph, vertices);
 
             //translate C
             Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
@@ -508,23 +507,23 @@ namespace Tajo
 
         public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm1Edges()
         {
-            if (modularProductGraphEdges != null)
-            {
-                Graph graph = modularProductGraphEdges;
-                HashSet<int> vertices = new HashSet<int>();
-                for (int v = 0; v < graph.VerticesCount; ++v)
-                {
-                    vertices.Add(v);
-                }
+            //if (modularProductGraphEdges != null)
+            //{
+            //    Graph graph = modularProductGraphEdges;
+            //    HashSet<int> vertices = new HashSet<int>();
+            //    for (int v = 0; v < graph.VerticesCount; ++v)
+            //    {
+            //        vertices.Add(v);
+            //    }
 
-                HashSet<int> C = Greedy(graph, vertices);
+            //    HashSet<int> C = Greedy(graph, vertices);
 
-                //translate C
-                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
+            //    //translate C
+            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
-                return result;
+            //    return result;
 
-            }
+            //}
 
             return null;
 
@@ -533,7 +532,6 @@ namespace Tajo
 
         public Dictionary<int, int> ApproximateAlgorithm2Vertices()
         {
-            //TO DO
             Graph graph = modularProductGraphVertices;
 
             HashSet<int> C = ISRemoval(graph);
@@ -546,17 +544,16 @@ namespace Tajo
 
         public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm2Edges()
         {
-            //TO DO
-            if (modularProductGraphEdges != null)
-            {
-                Graph graph = modularProductGraphEdges;
-                HashSet<int> C = ISRemoval(graph);
+            //if (modularProductGraphEdges != null)
+            //{
+            //    Graph graph = modularProductGraphEdges;
+            //    HashSet<int> C = ISRemoval(graph);
 
-                //translate C
-                Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
+            //    //translate C
+            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
-                return result;
-            }
+            //    return result;
+            //}
 
             return null;
 
