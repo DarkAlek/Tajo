@@ -96,7 +96,6 @@ namespace Tajo
             //var graph = new AdjacencyListsGraph<AVLAdjacencyList>(false, len1 * len2);
             (int x, int y)[] namesPom = new (int x, int y)[graph.VerticesCount];
 
-            //int[,] nxt = new int[len1 * len2, len1 * len2];
             for (int i = 0; i < len1; i++)
             {
                 for (int j = 0; j < len2; j++)
@@ -108,7 +107,6 @@ namespace Tajo
                             if (double.IsNaN(graph1.GetEdgeWeight(i, ipr)) == double.IsNaN(graph2.GetEdgeWeight(j, jpr)) && (i != ipr && j != jpr))
                             {
                                 graph.AddEdge(i + j * len1, ipr + jpr * len1);
-                                //nxt[i + j * len1, ipr + jpr * len1] = 1;
                                 namesPom[i + j * len1] = (i, j);
                                 namesPom[ipr + jpr * len1] = (ipr, jpr);
                             }
@@ -117,16 +115,6 @@ namespace Tajo
                 }
             }
 
-            //for (int q = 0; q < len1 * len2; q++)
-            //{
-            //    for (int w = 0; w < len1 * len2; w++)
-            //    {
-            //        Console.Write(nxt[q, w]);
-            //        if (w != len1 * len2 - 1)
-            //            Console.Write(",");
-            //    }
-            //    Console.WriteLine("");
-            //}
             names = namesPom;
             return graph;
         }
@@ -146,7 +134,6 @@ namespace Tajo
             return result;
         }
 
-        //private Dictionary<int, int> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
         private Dictionary<(int x, int y), (int x, int y)> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
         {
             Dictionary<(int x, int y), (int x, int y)> resultPom = new Dictionary<(int x, int y), (int x, int y)>();
@@ -247,6 +234,7 @@ namespace Tajo
             return resultPom;
         }
 
+        // TODO: Improve BronKerbosh with Koch modification (connected graph)
         private void BronKerbosch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
         {
             if(P.Count == 0 && X.Count == 0)
@@ -306,7 +294,7 @@ namespace Tajo
             }
         }
 
-
+        // TODO: Improve Greedy to find c-clique (connected graph)
         private HashSet<int> Greedy(Graph g, HashSet<int> vertices)
         {
 
@@ -362,8 +350,8 @@ namespace Tajo
 
         }
 
-		
-		private (HashSet<int>, HashSet<int>) Ramsey(Graph g, HashSet<int> vertices)
+        // TODO: Improve Ramsey to find c-clique (connected graph)
+        private (HashSet<int>, HashSet<int>) Ramsey(Graph g, HashSet<int> vertices)
         {
             if (vertices.Count == 0)
             {
@@ -493,7 +481,6 @@ namespace Tajo
 
                 BronKerbosch(graph, R, P, X, ref C);
 
-                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
                 Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
                 return result;
@@ -512,6 +499,7 @@ namespace Tajo
             }
 
             HashSet<int> C =  Greedy(graph, vertices);
+
             //translate C
             Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
 
@@ -530,8 +518,8 @@ namespace Tajo
                 }
 
                 HashSet<int> C = Greedy(graph, vertices);
+
                 //translate C
-                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
                 Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
                 return result;
@@ -549,6 +537,7 @@ namespace Tajo
             Graph graph = modularProductGraphVertices;
 
             HashSet<int> C = ISRemoval(graph);
+
             //translate C
             Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
 
@@ -562,8 +551,8 @@ namespace Tajo
             {
                 Graph graph = modularProductGraphEdges;
                 HashSet<int> C = ISRemoval(graph);
+
                 //translate C
-                //Dictionary<int, int> result = TranslateResultCliqueToSolutionEdges(C);
                 Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
 
                 return result;
