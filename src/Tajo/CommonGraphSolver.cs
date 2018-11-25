@@ -12,41 +12,18 @@ namespace Tajo
     {
         private Graph graph1;
         private Graph graph2;
-        private Graph lineGraph1;
-        private Graph lineGraph2;
-        private Graph modularProductGraphVertices;
-        //private Graph modularProductGraphEdges;
-        private (int x, int y)[] namesToLineGraph1;
-        private (int x, int y)[] namesToLineGraph2;
-        private (int x, int y)[] namesToModularProductGraphVertices;
-        private (int x, int y)[] namesToModularProductGraphEdges;
+        private Graph modularProductGraph;
+        private (int x, int y)[] namesToModularProductGraph;
 
         public Graph Graph1 { get => graph1; set => graph1 = value; }
         public Graph Graph2 { get => graph2; set => graph2 = value; }
-        public Graph LineGraph1 { get => lineGraph1; set => lineGraph1 = value; }
-        public Graph LineGraph2 { get => lineGraph2; set => lineGraph2 = value; }
-        public (int x, int y)[] NamesToLineGraph1 { get => namesToLineGraph1; set => namesToLineGraph1 = value; }
-        public (int x, int y)[] NamesToLineGraph2 { get => namesToLineGraph2; set => namesToLineGraph2 = value; }
-        public Graph ModularProductGraphVertices { get => modularProductGraphVertices; set => modularProductGraphVertices = value; }
-        //public Graph ModularProductGraphEdge { get => modularProductGraphEdges; set => modularProductGraphEdges = value; }
-        public (int x, int y)[] NamesToModularProductGraphVertices { get => namesToModularProductGraphVertices; set => namesToModularProductGraphVertices = value; }
-        public (int x, int y)[] NamesToModularProductGraphEdge { get => namesToModularProductGraphEdges; set => namesToModularProductGraphEdges = value; }
-
+        public Graph ModularProductGraphVertices { get => modularProductGraph; set => modularProductGraph = value; }
+        public (int x, int y)[] NamesToModularProductGraphVertices { get => namesToModularProductGraph; set => namesToModularProductGraph = value; }
         public CommonGraphSolver(Graph graph1, Graph graph2)
         {
             this.Graph1 = graph1;
             this.Graph2 = graph2;
-            lineGraph1 = CreateLineGraph(graph1, out namesToLineGraph1);
-            lineGraph2 = CreateLineGraph(graph2, out namesToLineGraph2);
-            modularProductGraphVertices = CreateModularGraph(graph1, graph2, out namesToModularProductGraphVertices);
-            //try
-            //{
-            //    modularProductGraphEdges = CreateModularGraph(lineGraph1, lineGraph2, out namesToModularProductGraphEdges);
-            //}
-            //catch (OutOfMemoryException)
-            //{
-            //    Console.WriteLine("Too many edges to create ModularProductGraphEdges");
-            //}
+            modularProductGraph = CreateModularGraph(graph1, graph2, out namesToModularProductGraph);
 
         }
 
@@ -93,7 +70,6 @@ namespace Tajo
             var len1 = graph1.VerticesCount;
             var len2 = graph2.VerticesCount;
             var graph = new AdjacencyMatrixGraph(false, len1 * len2);
-            //var graph = new AdjacencyListsGraph<AVLAdjacencyList>(false, len1 * len2);
             (int x, int y)[] namesPom = new (int x, int y)[graph.VerticesCount];
 
             for (int i = 0; i < len1; i++)
@@ -104,9 +80,15 @@ namespace Tajo
                     {
                         for (int jpr = 0; jpr < len2; jpr++)
                         {
-                            if (double.IsNaN(graph1.GetEdgeWeight(i, ipr)) == double.IsNaN(graph2.GetEdgeWeight(j, jpr)) && (i != ipr && j != jpr))
+                            if (!graph1.GetEdgeWeight(i, ipr).IsNaN() && !graph2.GetEdgeWeight(j, jpr).IsNaN() && (i != ipr && j != jpr))
                             {
                                 graph.AddEdge(i + j * len1, ipr + jpr * len1);
+                                namesPom[i + j * len1] = (i, j);
+                                namesPom[ipr + jpr * len1] = (ipr, jpr);
+                            }
+                            else if(graph1.GetEdgeWeight(i, ipr).IsNaN() && graph2.GetEdgeWeight(j, jpr).IsNaN() && (i != ipr && j != jpr))
+                            {
+                                graph.AddEdge(i + j * len1, ipr + jpr * len1, -1);
                                 namesPom[i + j * len1] = (i, j);
                                 namesPom[ipr + jpr * len1] = (ipr, jpr);
                             }
@@ -126,7 +108,7 @@ namespace Tajo
 
             foreach (var v in clique)
             {
-                result.Add(namesToModularProductGraphVertices[v].x, namesToModularProductGraphVertices[v].y);
+                result.Add(namesToModularProductGraph[v].x, namesToModularProductGraph[v].y);
 
                 i++;
             }
@@ -134,172 +116,139 @@ namespace Tajo
             return result;
         }
 
-        private Dictionary<(int x, int y), (int x, int y)> TranslateResultCliqueToSolutionEdges(HashSet<int> clique)
+        private Dictionary<int, int> FindMaxVerticesClique(List<HashSet<int>> C)
         {
-            Dictionary<(int x, int y), (int x, int y)> resultPom = new Dictionary<(int x, int y), (int x, int y)>();
-            Dictionary<int, int> result = new Dictionary<int, int>();
+            int maxSum = int.MinValue;
+            HashSet<int> maxClique = null;
 
-            foreach (var v in clique)
+            foreach (var c in C)
             {
-                resultPom.Add(namesToLineGraph1[namesToModularProductGraphEdges[v].x], namesToLineGraph2[namesToModularProductGraphEdges[v].y]);
-            }
-
-
-            Graph gPom1 = new AdjacencyMatrixGraph(false, resultPom.Keys.OrderBy(key => key.y).Last().y + 1);
-            Graph gPom2 = new AdjacencyMatrixGraph(false, resultPom.Values.OrderBy(value => value.y).Last().y + 1);
-
-
-            foreach (var el in resultPom.Keys)
-            {
-                gPom1.AddEdge(el.x, el.y);
-
-            }
-
-            foreach (var el in resultPom.Values)
-            {
-                gPom2.AddEdge(el.x, el.y);
-
-            }
-
-            // visualize common graphs
-            //GraphExport ge = new GraphExport();
-            //ge.Export(gPom1);
-            //ge.Export(gPom2);
-
-            //delta - Y exchange check(if actually isomorphic)
-            //for (int v = 0; v < gPom1.VerticesCount; ++v)
-            //{
-            //    foreach (var e in gPom1.OutEdges(v))
-            //    {
-            //        if (resultPom.Keys.Contains((e.From, e.To)))
-            //        {
-            //            if (!result.Keys.Contains(e.From))
-            //            {
-            //                if (gPom1.OutDegree(e.From) == gPom2.OutDegree(resultPom[(e.From, e.To)].x))
-            //                {
-            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].x))
-            //                        result.Add(e.From, resultPom[(e.From, e.To)].x);
-            //                }
-            //                else if (gPom1.OutDegree(e.From) == gPom2.OutDegree(resultPom[(e.From, e.To)].y))
-            //                {
-            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].y))
-            //                        result.Add(e.From, resultPom[(e.From, e.To)].y);
-            //                }
-            //            }
-            //            if (!result.Keys.Contains(e.To))
-            //            {
-            //                if (gPom1.OutDegree(e.To) == gPom2.OutDegree(resultPom[(e.From, e.To)].x))
-            //                {
-            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].x))
-            //                        result.Add(e.To, resultPom[(e.From, e.To)].x);
-            //                }
-            //                else if (gPom1.OutDegree(e.To) == gPom2.OutDegree(resultPom[(e.From, e.To)].y))
-            //                {
-            //                    if (!result.Values.Contains(resultPom[(e.From, e.To)].y))
-            //                        result.Add(e.To, resultPom[(e.From, e.To)].y);
-            //                }
-            //            }
-
-            //        }
-            //    }
-            //}
-
-            // delta-Y exchange check 
-            //IEnumerable<int> keys1 = result.Keys.ToList();
-            //foreach (var key in keys1)
-            //{
-            //    if (gPom1.OutDegree(key) != gPom2.OutDegree(result[key]))
-            //    {
-            //        result.Remove(key);
-            //    }
-            //}
-
-            // delta-Y exchange check 
-            IEnumerable<(int x, int y)> keys = resultPom.Keys.ToList();
-            foreach (var key in keys)
-            {
-                if (gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].x) && gPom1.OutDegree(key.x) != gPom2.OutDegree(resultPom[key].y))
+                int sum = c.Count;
+                if (maxSum < sum)
                 {
-                    gPom1.DelEdge(key.x, key.y);
-                    gPom2.DelEdge(resultPom[key].x, resultPom[key].y);
-                    resultPom.Remove(key);
+                    maxClique = c;
+                    maxSum = sum;
                 }
             }
-
-            // visualize result graphs (after check)
-            //GraphExport ge = new GraphExport();
-            //ge.Export(gPom1);
-            //ge.Export(gPom2);
-
-            return resultPom;
+            return TranslateResultCliqueToSolutionVertices(maxClique);
         }
 
 
-        // TODO: Develop init alghoritm for BronKerboschKoch (connected graph) (D set)
-        private void InitBronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
+        private Dictionary<int, int> FindMaxVerticesEdgesClique(List<HashSet<int>> C)
         {
+            int maxSum = int.MinValue;
+            HashSet<int> maxClique = null;
 
+            foreach (var c in C)
+            {
+                int sum = 0;
+                Dictionary<int, int> mapping = TranslateResultCliqueToSolutionVertices(c);
+                sum += mapping.Count;
+                foreach (var v in mapping.Keys)
+                {
+                    foreach (var e in graph1.OutEdges(v))
+                    {
+                        if (e.From < e.To)
+                        {
+                            if (mapping.Keys.Contains(e.To))
+                            {
+                                sum += 1;
+                            }
+                        }
+                    }
+                }
+                if (maxSum < sum)
+                {
+                    maxClique = c;
+                    maxSum = sum;
+                }
+            }
+            return TranslateResultCliqueToSolutionVertices(maxClique);
         }
 
-        // TODO: Improve BronKerboschKoch with Koch modification (connected graph) (D set)
-        private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> X, ref HashSet<int> C)
+
+        private void InitBronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> D, HashSet<int> X, ref List<HashSet<int>> C)
+        {
+            HashSet<int> T = new HashSet<int>();
+
+            for(int u=0; u < g.VerticesCount; ++u)
+            {
+                P = new HashSet<int>();
+                D = new HashSet<int>();
+                X = new HashSet<int>();
+                HashSet<int> Nv = new HashSet<int>();
+                foreach(var e in g.OutEdges(u))
+                {
+                    Nv.Add(e.To);
+                }
+                foreach(var v in Nv)
+                {
+                    if(g.GetEdgeWeight(u,v) == 1)
+                    {
+                        if (T.Contains(v))
+                        {
+                            X.Add(v);
+                        }
+                        else
+                        {
+                            P.Add(v);
+                        }
+                    }
+                    else if(g.GetEdgeWeight(u, v) == -1)
+                    {
+                        D.Add(v);
+                    }
+                }
+
+                HashSet<int> uSet = new HashSet<int>();
+                uSet.Add(u);
+                BronKerboschKoch(g, uSet, P, D, X, ref C);
+
+                T.UnionWith(uSet);
+            }
+        }
+
+        private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> D, HashSet<int> X, ref List<HashSet<int>> C)
         {
             if (P.Count == 0 && X.Count == 0)
             {
-                if (R.Count > C.Count)
-                {
-                    C = R;
-                }
+                C.Add(R);
             }
             else
             {
-                HashSet<int> PuX = new HashSet<int>(P.Union(X));
-                int i = 0;
-                int pivot = -1;
-                int maxDegreeInP = int.MinValue;
-
-                foreach (var v in PuX)
+                HashSet<int> Ppom = new HashSet<int>(P);
+                foreach(var u in Ppom)
                 {
-                    foreach (var e in g.OutEdges(v))
+                    P.Remove(u);
+                    HashSet<int> Ptmp = new HashSet<int>(P);
+                    HashSet<int> Dtmp = new HashSet<int>(D);
+                    HashSet<int> Nu = new HashSet<int>();
+
+                    foreach(var e in g.OutEdges(u))
                     {
-                        if (P.Contains(e.To)) i++;
+                        Nu.Add(e.To);
                     }
 
-                    if (i > maxDegreeInP)
+                    foreach(var v in D)
                     {
-                        maxDegreeInP = i;
-                        pivot = v;
+                        if(g.GetEdgeWeight(v, u) == 1)
+                        {
+                            Ptmp.Add(v);
+                            Dtmp.Remove(v);
+                        }
                     }
 
-                    i = 0;
-                }
+                    HashSet<int> uSet = new HashSet<int>();
+                    uSet.Add(u);
 
-                HashSet<int> Nu = new HashSet<int>();
+                    BronKerboschKoch(g, new HashSet<int>(R.Union(uSet)), new HashSet<int>(Ptmp.Intersect(Nu)),
+                                        new HashSet<int>(Dtmp.Intersect(Nu)), new HashSet<int>(X.Intersect(Nu)), ref C);
 
-                foreach (var e in g.OutEdges(pivot))
-                {
-                    Nu.Add(e.To);
-                }
-
-                HashSet<int> PeNu = new HashSet<int>(P.Except(Nu));
-                foreach (var v in PeNu)
-                {
-                    HashSet<int> Nv = new HashSet<int>();
-
-                    foreach (var e in g.OutEdges(v))
-                    {
-                        Nv.Add(e.To);
-                    }
-                    HashSet<int> vSet = new HashSet<int>();
-                    vSet.Add(v);
-
-                    BronKerboschKoch(g, new HashSet<int>(R.Union(vSet)), new HashSet<int>(P.Intersect(Nv)), new HashSet<int>(X.Intersect(Nv)), ref C);
-                    P.Remove(v);
-                    X.Add(v);
-
+                    X.UnionWith(uSet);
                 }
             }
         }
+
 
         // TODO: Improve Greedy to find c-clique (connected graph)
         private HashSet<int> Greedy(Graph g, HashSet<int> vertices)
@@ -444,53 +393,42 @@ namespace Tajo
 
         public Dictionary<int, int> ExactAlghoritmVertices()
         {
-            Graph graph = modularProductGraphVertices;
+            Graph graph = modularProductGraph;
             HashSet<int> R = new HashSet<int>();
             HashSet<int> P = new HashSet<int>();
+            HashSet<int> D = new HashSet<int>();
             HashSet<int> X = new HashSet<int>();
-            HashSet<int> C = new HashSet<int>();
+            List<HashSet<int>> C = new List<HashSet<int>>();
 
-            for (int v = 0; v < graph.VerticesCount; ++v)
-            {
-                P.Add(v);
-            }
 
-            BronKerboschKoch(graph, R, P, X, ref C);
+            InitBronKerboschKoch(graph, R, P, D, X, ref C);
 
             //translate C
-            Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
+            Dictionary<int, int> result = FindMaxVerticesClique(C);
 
             return result;
         }
 
-        public Dictionary<(int x, int y), (int x, int y)> ExactAlghoritmEdges()
+        public Dictionary<int, int> ExactAlghoritmVerticesEdges()
         {
-            //if (modularProductGraphEdges != null)
-            //{
-            //    Graph graph = modularProductGraphEdges;
-            //    HashSet<int> R = new HashSet<int>();
-            //    HashSet<int> P = new HashSet<int>();
-            //    HashSet<int> X = new HashSet<int>();
-            //    HashSet<int> C = new HashSet<int>();
+            Graph graph = modularProductGraph;
+            HashSet<int> R = new HashSet<int>();
+            HashSet<int> P = new HashSet<int>();
+            HashSet<int> D = new HashSet<int>();
+            HashSet<int> X = new HashSet<int>();
+            List<HashSet<int>> C = new List<HashSet<int>>();
 
-            //    for (int v = 0; v < graph.VerticesCount; ++v)
-            //    {
-            //        P.Add(v);
-            //    }
 
-            //    BronKerboschKoch(graph, R, P, X, ref C);
+            InitBronKerboschKoch(graph, R, P, D, X, ref C);
 
-            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
+            Dictionary<int, int> result = FindMaxVerticesEdgesClique(C);
 
-            //    return result;
-            //}
-
-            return null;
+            return result;
         }
 
-        public Dictionary<int, int> ApproximateAlgorithm1Vertices()
+        public Dictionary<int, int> ApproximateAlgorithm1()
         {
-            Graph graph = modularProductGraphVertices;
+            Graph graph = modularProductGraph;
             HashSet<int> vertices = new HashSet<int>();
             for (int v = 0; v < graph.VerticesCount; ++v)
             {
@@ -505,34 +443,9 @@ namespace Tajo
             return result;
         }
 
-        public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm1Edges()
+        public Dictionary<int, int> ApproximateAlgorithm2()
         {
-            //if (modularProductGraphEdges != null)
-            //{
-            //    Graph graph = modularProductGraphEdges;
-            //    HashSet<int> vertices = new HashSet<int>();
-            //    for (int v = 0; v < graph.VerticesCount; ++v)
-            //    {
-            //        vertices.Add(v);
-            //    }
-
-            //    HashSet<int> C = Greedy(graph, vertices);
-
-            //    //translate C
-            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
-
-            //    return result;
-
-            //}
-
-            return null;
-
-
-        }
-
-        public Dictionary<int, int> ApproximateAlgorithm2Vertices()
-        {
-            Graph graph = modularProductGraphVertices;
+            Graph graph = modularProductGraph;
 
             HashSet<int> C = ISRemoval(graph);
 
@@ -540,23 +453,6 @@ namespace Tajo
             Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
 
             return result;
-        }
-
-        public Dictionary<(int x, int y), (int x, int y)> ApproximateAlgorithm2Edges()
-        {
-            //if (modularProductGraphEdges != null)
-            //{
-            //    Graph graph = modularProductGraphEdges;
-            //    HashSet<int> C = ISRemoval(graph);
-
-            //    //translate C
-            //    Dictionary<(int x, int y), (int x, int y)> result = TranslateResultCliqueToSolutionEdges(C);
-
-            //    return result;
-            //}
-
-            return null;
-
         }
 
     }
