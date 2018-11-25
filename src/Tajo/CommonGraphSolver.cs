@@ -202,13 +202,13 @@ namespace Tajo
 
                 HashSet<int> uSet = new HashSet<int>();
                 uSet.Add(u);
-                BronKerboschKoch(g, uSet, P, D, X, ref C);
+                BronKerboschKoch(g, uSet, P, D, X, ref T, ref C);
 
                 T.UnionWith(uSet);
             }
         }
 
-        private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> D, HashSet<int> X, ref List<HashSet<int>> C)
+        private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> D, HashSet<int> X, ref HashSet<int> T , ref List<HashSet<int>> C)
         {
             if (P.Count == 0 && X.Count == 0)
             {
@@ -222,6 +222,7 @@ namespace Tajo
                     P.Remove(u);
                     HashSet<int> Ptmp = new HashSet<int>(P);
                     HashSet<int> Dtmp = new HashSet<int>(D);
+                    HashSet<int> Xtmp = new HashSet<int>(X);
                     HashSet<int> Nu = new HashSet<int>();
 
                     foreach(var e in g.OutEdges(u))
@@ -233,7 +234,14 @@ namespace Tajo
                     {
                         if(g.GetEdgeWeight(v, u) == 1)
                         {
-                            Ptmp.Add(v);
+                            if (T.Contains(v)) {
+                                Xtmp.Add(v);
+                            }
+                            else
+                            {
+                                Ptmp.Add(v);
+                            }
+
                             Dtmp.Remove(v);
                         }
                     }
@@ -242,7 +250,7 @@ namespace Tajo
                     uSet.Add(u);
 
                     BronKerboschKoch(g, new HashSet<int>(R.Union(uSet)), new HashSet<int>(Ptmp.Intersect(Nu)),
-                                        new HashSet<int>(Dtmp.Intersect(Nu)), new HashSet<int>(X.Intersect(Nu)), ref C);
+                                        new HashSet<int>(Dtmp.Intersect(Nu)), new HashSet<int>(Xtmp.Intersect(Nu)), ref T, ref C);
 
                     X.UnionWith(uSet);
                 }
