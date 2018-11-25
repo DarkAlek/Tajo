@@ -126,6 +126,7 @@ namespace Tajo
                             GraphReader.WriteCSV(path_output1, 2, output1);
                         }
                         Console.WriteLine(endTime - startTime + " ms");
+                        VisualizeResultGraphs(ge, graph1, graph2, output1);
                         break;
                     case '3':
                         Console.WriteLine("ApproximateAlgorithm2 - computing...");
@@ -137,6 +138,7 @@ namespace Tajo
                             GraphReader.WriteCSV(path_output1, 3, output1);
                         }
                         Console.WriteLine(endTime - startTime + " ms");
+                        VisualizeResultGraphs(ge, graph1, graph2, output1);
                         break;
                     default:
                         break;
