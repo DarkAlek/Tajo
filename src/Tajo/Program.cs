@@ -32,6 +32,9 @@ namespace Tajo
             ofd2.ShowDialog();
             var path_input2 = ofd2.FileName;
 
+            if (path_input1 == "" || path_input1 == "")
+                return;
+
             Console.WriteLine("Reading graphs from .csv...");
             var graph1 = GraphReader.ReadCSV(path_input1);
             var graph2 = GraphReader.ReadCSV(path_input2);

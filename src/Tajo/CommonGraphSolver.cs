@@ -258,8 +258,6 @@ namespace Tajo
 			}
 		}
 
-
-		// TODO: Improve Greedy to find c-clique (connected graph)
 		private HashSet<int> Greedy(Graph g, HashSet<int> vertices)
 		{
 
@@ -307,7 +305,6 @@ namespace Tajo
 
 		}
 
-		// TODO: Improve Ramsey to find c-clique (connected graph)
 		private (HashSet<int>, HashSet<int>) Ramsey(Graph g, HashSet<int> vertices)
 		{
 			if (vertices.Count == 0)
@@ -449,6 +446,7 @@ namespace Tajo
 			//translate C
 			Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
 			result = validateSolution(result);
+
 			return result;
 		}
 		
@@ -460,17 +458,20 @@ namespace Tajo
 
 			//translate C
 			Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
+
 			result = validateSolution(result);
 			return result;
 		}
+
 		private Dictionary<int, int> validateSolution(Dictionary<int, int> result)
 		{
 			var x = result.Count;
 			var hs = new HashSet<int>();
 			var dict_id_val = new Dictionary<int, int>();
 			var dict_val_id = new Dictionary<int, int>();
-			var g = new ASD.Graphs.AdjacencyMatrixGraph(false, x);
+			var g = new AdjacencyMatrixGraph(false, x);
 			int j = 0;
+
 			//indeksy stare-nowe
 			foreach (var v in result.Keys)
 			{
@@ -479,6 +480,7 @@ namespace Tajo
 				dict_val_id.Add(v, j);
 				j++;
 			}
+
 			//graf
 			foreach (var v in hs)
 			{
@@ -495,10 +497,11 @@ namespace Tajo
 
 				}
 			}
+
 			int counter = 0;
 			int cc = 0;
 			var l =new List<HashSet<int>>();
-			//
+
 			Predicate<int> vv = delegate (int n)
 			{
 				if (counter == cc - 1)
@@ -506,37 +509,41 @@ namespace Tajo
 					l.Add(new HashSet<int>());
 				}
 				l[l.Count - 1].Add(n);
-				//Console.WriteLine(n);
-				//ord[n] = ++orda;
 				counter = cc;
 				return true;
 			};
 
 			g.DFSearchAll(vv, null, out cc);
 
-			//max spójny
-			int max = -1;
-			int maxl = -1;
-			int i = 0;
-			foreach(var hss in l)
-			{
-				if (hss.Count > maxl)
-				{
-					maxl = hss.Count;
-					max = i;
-				}
-				i++;
-			}
-			var res = new Dictionary<int, int>();
-			int ve1 = -1;
-			int ve2 = -1;
-			foreach(var ve in l[max])
-			{
-				dict_id_val.TryGetValue(ve, out ve1);
-				result.TryGetValue(ve1,out ve2);
-				res.Add(ve1, ve2);
-			}
-			return res;
+            if (cc == 1)
+            {
+                //max spójny
+                int maxCount = int.MinValue;
+                HashSet<int> maxComponent = new HashSet<int>();
+
+                foreach (var hss in l)
+                {
+                    if (hss.Count > maxCount)
+                    {
+                        maxCount = hss.Count;
+                        maxComponent = hss;
+                    }
+                }
+                var res = new Dictionary<int, int>();
+                int ve1 = int.MinValue;
+                int ve2 = int.MinValue;
+
+                foreach (var ve in maxComponent)
+                {
+                    dict_id_val.TryGetValue(ve, out ve1);
+                    result.TryGetValue(ve1, out ve2);
+                    res.Add(ve1, ve2);
+                }
+                return res;
+            }
+
+            return result;
+
 		}
 	}
 }
