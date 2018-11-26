@@ -448,7 +448,7 @@ namespace Tajo
 
 			//translate C
 			Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
-			//result = validateSolution(result);
+			result = validateSolution(result);
 			return result;
 		}
 		
@@ -460,7 +460,7 @@ namespace Tajo
 
 			//translate C
 			Dictionary<int, int> result = TranslateResultCliqueToSolutionVertices(C);
-			//result = validateSolution(result);
+			result = validateSolution(result);
 			return result;
 		}
 		private Dictionary<int, int> validateSolution(Dictionary<int, int> result)
@@ -471,6 +471,7 @@ namespace Tajo
 			var dict_val_id = new Dictionary<int, int>();
 			var g = new ASD.Graphs.AdjacencyMatrixGraph(false, x);
 			int j = 0;
+			//indeksy stare-nowe
 			foreach (var v in result.Keys)
 			{
 				hs.Add(v);
@@ -478,14 +479,15 @@ namespace Tajo
 				dict_val_id.Add(v, j);
 				j++;
 			}
+			//graf
 			foreach (var v in hs)
 			{
 				foreach (var e in graph1.OutEdges(v))
 				{
-					if (hs.Contains(e.To))
+					if (hs.Contains(e.To) && e.To != v)
 					{
 						int v1, v2;
-						dict_val_id.TryGetValue(v, out v1);
+						dict_val_id.TryGetValue(e.To, out v1);
 						dict_val_id.TryGetValue(v, out v2);
 
 						g.AddEdge(v1, v2);
@@ -493,13 +495,48 @@ namespace Tajo
 
 				}
 			}
-			int count = 0;
+			int counter = 0;
+			int cc = 0;
+			var l =new List<HashSet<int>>();
 			//
-			ASD.Graphs.DFSGraphExtender.DFSearchAll(g, null, null, out count, null);
-			if (count != 1)
+			Predicate<int> vv = delegate (int n)
 			{
+				if (counter == cc - 1)
+				{
+					l.Add(new HashSet<int>());
+				}
+				l[l.Count - 1].Add(n);
+				//Console.WriteLine(n);
+				//ord[n] = ++orda;
+				counter = cc;
+				return true;
+			};
+
+			g.DFSearchAll(vv, null, out cc);
+
+			//max spójny
+			int max = -1;
+			int maxl = -1;
+			int i = 0;
+			foreach(var hss in l)
+			{
+				if (hss.Count > maxl)
+				{
+					maxl = hss.Count;
+					max = i;
+				}
+				i++;
 			}
-			return null;
+			var res = new Dictionary<int, int>();
+			int ve1 = -1;
+			int ve2 = -1;
+			foreach(var ve in l[max])
+			{
+				dict_id_val.TryGetValue(ve, out ve1);
+				result.TryGetValue(ve1,out ve2);
+				res.Add(ve1, ve2);
+			}
+			return res;
 		}
 	}
 }
