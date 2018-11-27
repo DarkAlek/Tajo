@@ -190,8 +190,15 @@ namespace Tajo
                 i++;
             }
 
-            ge.Export(g1, null, verticesDescriptions1);
-            ge.Export(g2, null, verticesDescriptions2);
+            try
+            {
+                ge.Export(g1, null, verticesDescriptions1);
+                ge.Export(g2, null, verticesDescriptions2);
+            }
+            catch
+            {
+                Console.WriteLine("GraphViz isn't installed. Graphs will be not visualized.");
+            }
         }
 
 	}
