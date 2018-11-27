@@ -14,6 +14,7 @@ namespace Tajo
 		private Graph graph2;
 		private Graph modularProductGraph;
 		private (int x, int y)[] namesToModularProductGraph;
+        private bool flag = true;
 
 		public Graph Graph1 { get => graph1; set => graph1 = value; }
 		public Graph Graph2 { get => graph2; set => graph2 = value; }
@@ -173,6 +174,7 @@ namespace Tajo
 
 			for (int u = 0; u < g.VerticesCount; ++u)
 			{
+                if (flag == false) break;
 				P = new HashSet<int>();
 				D = new HashSet<int>();
 				X = new HashSet<int>();
@@ -210,6 +212,16 @@ namespace Tajo
 
 		private void BronKerboschKoch(Graph g, HashSet<int> R, HashSet<int> P, HashSet<int> D, HashSet<int> X, ref HashSet<int> T, ref List<HashSet<int>> C)
 		{
+            if(flag == false)
+            {
+                return;
+            }
+
+            if(R.Count == graph1.VerticesCount || R.Count == graph2.VerticesCount)
+            {
+                flag = false;
+            }
+
 			if (P.Count == 0 && X.Count == 0)
 			{
 				C.Add(R);
@@ -219,7 +231,11 @@ namespace Tajo
 				HashSet<int> Ppom = new HashSet<int>(P);
 				foreach (var u in Ppom)
 				{
-					P.Remove(u);
+                    if (flag == false)
+                    {
+                        return;
+                    }
+                    P.Remove(u);
 					HashSet<int> Ptmp = new HashSet<int>(P);
 					HashSet<int> Dtmp = new HashSet<int>(D);
 					HashSet<int> Xtmp = new HashSet<int>(X);
@@ -408,6 +424,7 @@ namespace Tajo
 
 
 			InitBronKerboschKoch(graph, R, P, D, X, ref C);
+            flag = true;
 
 			//translate C
 			Dictionary<int, int> result = FindMaxVerticesClique(C);
@@ -426,6 +443,7 @@ namespace Tajo
 
 
 			InitBronKerboschKoch(graph, R, P, D, X, ref C);
+            flag = true;
 
 			Dictionary<int, int> result = FindMaxVerticesEdgesClique(C);
 
