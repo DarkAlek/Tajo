@@ -160,9 +160,28 @@ namespace Tajo
                 }
 
                 Console.WriteLine("Press [ESC] to exit...");
+                Console.WriteLine("Press [BACKSPACE] to load new graphs...");
                 Console.WriteLine("Press any other button to contiune calculations on given graphs...");
                 var keyPressed = Console.ReadKey();
+                if(keyPressed.Key == ConsoleKey.Backspace)
+                {
+                    ofd1 = new OpenFileDialog();
+                    ofd1.ShowDialog();
+                    path_input1 = ofd1.FileName;
 
+                    ofd2 = new OpenFileDialog();
+                    ofd2.ShowDialog();
+                    path_input2 = ofd2.FileName;
+
+                    if (path_input1 == "" || path_input2 == "")
+                        return;
+
+                    Console.WriteLine("Reading graphs from .csv...");
+                    graph1 = GraphReader.ReadCSV(path_input1);
+                    graph2 = GraphReader.ReadCSV(path_input2);
+                    gs = new CommonGraphSolver(graph1, graph2);
+                    modularGraph = gs.ModularProductGraphVertices;
+                }
                 if (keyPressed.Key == ConsoleKey.Escape) flag = false;
             }
         }
