@@ -134,7 +134,7 @@ namespace Tajo
                         {
                             GraphReader.WriteCSV(path_output1, 2, output1);
                         }
-                        Console.WriteLine(endTime - startTime + " ms");
+                        Console.WriteLine(endTime - startTime);
                         if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
                         {
                             VisualizeResultGraphs(ge, graph1, graph2, output1);
@@ -149,7 +149,7 @@ namespace Tajo
                         {
                             GraphReader.WriteCSV(path_output1, 3, output1);
                         }
-                        Console.WriteLine(endTime - startTime + " ms");
+                        Console.WriteLine(endTime - startTime);
                         if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
                         {
                             VisualizeResultGraphs(ge, graph1, graph2, output1);
