@@ -23,148 +23,173 @@ namespace Tajo
             Dictionary<int, int> output2;
             GraphExport ge = new GraphExport();
 
-            // Load *.csv with Open Dialog 
-            OpenFileDialog ofd1 = new OpenFileDialog();
-            ofd1.ShowDialog();
-            var path_input1 = ofd1.FileName;
+			// Load *.csv with Open Dialog 
+			// OpenFileDialog ofd1 = new OpenFileDialog();
+			//ofd1.ShowDialog();
+			// var path_input1 = ofd1.FileName;
 
-            OpenFileDialog ofd2 = new OpenFileDialog();
-            ofd2.ShowDialog();
-            var path_input2 = ofd2.FileName;
+			//OpenFileDialog ofd2 = new OpenFileDialog();
+			//ofd2.ShowDialog();
+			//var path_input2 = ofd2.FileName;
 
-            if (path_input1 == "" || path_input2 == "")
-                return;
+			//if (path_input1 == "" || path_input2 == "")
+			//    return;
 
-            Console.WriteLine("Reading graphs from .csv...");
-            var graph1 = GraphReader.ReadCSV(path_input1);
-            var graph2 = GraphReader.ReadCSV(path_input2);
-            CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
-            var modularGraph = gs.ModularProductGraphVertices;
+			//Console.WriteLine("Reading graphs from .csv...");
+			//var graph1 = GraphReader.ReadCSV(path_input1);
+			//var graph2 = GraphReader.ReadCSV(path_input2);
+			Graph graph1= new AdjacencyMatrixGraph(false,1);
+			Graph graph2 = new AdjacencyMatrixGraph(false,1);
 
-            bool flag = true;
+			var radnom_gen = new RandomGraphGenerator(999);
+			Random r = new Random();
+			for (int i=1;i<35;i++)
+			{
+				startTime = DateTime.Now;
+				for (int j =0;j<50;j++)
+				{ 
+				graph1 = radnom_gen.UndirectedGraph(typeof(AdjacencyMatrixGraph), i, r.NextDouble());
 
-            while (flag)
-            {
-                Console.WriteLine("---------------------------------------------------------");
-                Console.WriteLine("TAJO maximal common subgraph project.");
-                Console.WriteLine("Press 1 to run exact algorithm.");
-                Console.WriteLine("Press 2 to run approximate algorithm no.1");
-                Console.WriteLine("Press 3 to run approximate algorithm no.2");
-                Console.WriteLine("---------------------------------------------------------");
+				graph2 = radnom_gen.UndirectedGraph(typeof(AdjacencyMatrixGraph), i, r.NextDouble());
 
-                var inputString = Console.ReadLine();
-                try
-                {
-                    x = inputString[0];
-                }
-                catch
-                {
-                    x = '0';
-                }
+				CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
+				var modularGraph = gs.ModularProductGraphVertices;
 
-                if(x == '1')
-                {
-                    Console.WriteLine("Press relevant key to choose exact alghoritm version:");
-                    Console.WriteLine(" 1) Vertices");
-                    Console.WriteLine(" 2) Vertices + Edges");
-                    inputString = Console.ReadLine();
-                    try
-                    {
-                        y = inputString[0];
-                    }
-                    catch
-                    {
-                        y = '0';
-                    }
+					//output1 = gs.ExactAlghoritmVertices();
+					//output1 = gs.ApproximateAlgorithm1();
+					output1 = gs.ApproximateAlgorithm2();
+				
+				}
+				endTime = DateTime.Now;
+				Console.WriteLine((endTime - startTime) + " ms" + i.ToString());
+			}
+   //         CommonGraphSolver gs = new CommonGraphSolver(graph1, graph2);
+   //         var modularGraph = gs.ModularProductGraphVertices;
+			//output1 = gs.ExactAlghoritmVertices();
+			//bool flag = true;
 
-                }
+            //while (flag)
+            //{
+            //    Console.WriteLine("---------------------------------------------------------");
+            //    Console.WriteLine("TAJO maximal common subgraph project.");
+            //    Console.WriteLine("Press 1 to run exact algorithm.");
+            //    Console.WriteLine("Press 2 to run approximate algorithm no.1");
+            //    Console.WriteLine("Press 3 to run approximate algorithm no.2");
+            //    Console.WriteLine("---------------------------------------------------------");
 
-                // TODO: Visualize result common graphs
-                // visualize graphs
-                //ge.Export(gs.Graph1);
-                //ge.Export(gs.Graph2);
-                //ge.Export(gs.ModularProductGraphVertices);
+            //    var inputString = Console.ReadLine();
+            //    try
+            //    {
+            //        x = inputString[0];
+            //    }
+            //    catch
+            //    {
+            //        x = '0';
+            //    }
 
-                var path_output1 = path_input1.Remove(path_input1.Length - 12) + "result1";
-                var path_output2 = path_input1.Remove(path_input2.Length - 12) + "result2";
+            //    if(x == '1')
+            //    {
+            //        Console.WriteLine("Press relevant key to choose exact alghoritm version:");
+            //        Console.WriteLine(" 1) Vertices");
+            //        Console.WriteLine(" 2) Vertices + Edges");
+            //        inputString = Console.ReadLine();
+            //        try
+            //        {
+            //            y = inputString[0];
+            //        }
+            //        catch
+            //        {
+            //            y = '0';
+            //        }
 
-                switch (x)
-                {
-                    case '1':
-                        if (y == '1')
-                        {
-                            Console.WriteLine("Exact algorithm - computing vertices...");
-                            startTime = DateTime.Now;
-                            output1 = gs.ExactAlghoritmVertices();
-                            endTime = DateTime.Now;
-                            if (output1 != null)
-                            {
-                                GraphReader.WriteCSV(path_output1, 1, output1);
-                            }
-                            Console.WriteLine(endTime - startTime);
-                            if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
-                            {
-                                VisualizeResultGraphs(ge, graph1, graph2, output1);
-                            }
-                        }
-                        else if (y == '2')
-                        {
-                            Console.WriteLine("Exact algorithm - computing vertices + edges...");
-                            startTime= DateTime.Now;
-                            output2 = gs.ExactAlghoritmVerticesEdges();
-                            endTime = DateTime.Now;
-                            if (output2 != null)
-                            {
-                                GraphReader.WriteCSV(path_output2, 1, output2);
-                            }
-                            Console.WriteLine(endTime - startTime);
-                            if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
-                            {
-                                VisualizeResultGraphs(ge, graph1, graph2, output2);
-                            }
-                        }
-                        break;
+            //    }
 
-                    case '2':
-                        Console.WriteLine("ApproximateAlgorithm1 - computing...");
-                        startTime = DateTime.Now;
-                        output1 = gs.ApproximateAlgorithm1();
-                        endTime = DateTime.Now;
-                        if (output1 != null)
-                        {
-                            GraphReader.WriteCSV(path_output1, 2, output1);
-                        }
-                        Console.WriteLine(endTime - startTime + " ms");
-                        if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
-                        {
-                            VisualizeResultGraphs(ge, graph1, graph2, output1);
-                        }
-                        break;
-                    case '3':
-                        Console.WriteLine("ApproximateAlgorithm2 - computing...");
-                        startTime = DateTime.Now;
-                        output1 = gs.ApproximateAlgorithm2();
-                        endTime = DateTime.Now;
-                        if (output1 != null)
-                        {
-                            GraphReader.WriteCSV(path_output1, 3, output1);
-                        }
-                        Console.WriteLine(endTime - startTime + " ms");
-                        if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
-                        {
-                            VisualizeResultGraphs(ge, graph1, graph2, output1);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+            //    // TODO: Visualize result common graphs
+            //    // visualize graphs
+            //    //ge.Export(gs.Graph1);
+            //    //ge.Export(gs.Graph2);
+            //    //ge.Export(gs.ModularProductGraphVertices);
 
-                Console.WriteLine("Press [ESC] to exit...");
-                Console.WriteLine("Press any other button to contiune calculations on given graphs...");
-                var keyPressed = Console.ReadKey();
+            //   // var path_output1 = path_input1.Remove(path_input1.Length - 12) + "result1";
+            //   // var path_output2 = path_input1.Remove(path_input2.Length - 12) + "result2";
 
-                if (keyPressed.Key == ConsoleKey.Escape) flag = false;
-            }
+            //    switch (x)
+            //    {
+            //        case '1':
+            //            if (y == '1')
+            //            {
+            //                Console.WriteLine("Exact algorithm - computing vertices...");
+            //                startTime = DateTime.Now;
+            //                output1 = gs.ExactAlghoritmVertices();
+            //                endTime = DateTime.Now;
+            //                if (output1 != null)
+            //                {
+            //                    GraphReader.WriteCSV(path_output1, 1, output1);
+            //                }
+            //                Console.WriteLine(endTime - startTime);
+            //                if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
+            //                {
+            //                    VisualizeResultGraphs(ge, graph1, graph2, output1);
+            //                }
+            //            }
+            //            else if (y == '2')
+            //            {
+            //                Console.WriteLine("Exact algorithm - computing vertices + edges...");
+            //                startTime= DateTime.Now;
+            //                output2 = gs.ExactAlghoritmVerticesEdges();
+            //                endTime = DateTime.Now;
+            //                if (output2 != null)
+            //                {
+            //                    GraphReader.WriteCSV(path_output2, 1, output2);
+            //                }
+            //                Console.WriteLine(endTime - startTime);
+            //                if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
+            //                {
+            //                    VisualizeResultGraphs(ge, graph1, graph2, output2);
+            //                }
+            //            }
+            //            break;
+
+            //        case '2':
+            //            Console.WriteLine("ApproximateAlgorithm1 - computing...");
+            //            startTime = DateTime.Now;
+            //            output1 = gs.ApproximateAlgorithm1();
+            //            endTime = DateTime.Now;
+            //            if (output1 != null)
+            //            {
+            //                GraphReader.WriteCSV(path_output1, 2, output1);
+            //            }
+            //            Console.WriteLine(endTime - startTime + " ms");
+            //            if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
+            //            {
+            //                VisualizeResultGraphs(ge, graph1, graph2, output1);
+            //            }
+            //            break;
+            //        case '3':
+            //            Console.WriteLine("ApproximateAlgorithm2 - computing...");
+            //            startTime = DateTime.Now;
+            //            output1 = gs.ApproximateAlgorithm2();
+            //            endTime = DateTime.Now;
+            //            if (output1 != null)
+            //            {
+            //                GraphReader.WriteCSV(path_output1, 3, output1);
+            //            }
+            //            Console.WriteLine(endTime - startTime + " ms");
+            //            if (graph1.VerticesCount <= 30 && graph2.VerticesCount <= 30)
+            //            {
+            //                VisualizeResultGraphs(ge, graph1, graph2, output1);
+            //            }
+            //            break;
+            //        default:
+            //            break;
+            //    }
+
+            //    Console.WriteLine("Press [ESC] to exit...");
+            //    Console.WriteLine("Press any other button to contiune calculations on given graphs...");
+            //    var keyPressed = Console.ReadKey();
+
+            //    if (keyPressed.Key == ConsoleKey.Escape) flag = false;
+            //}
         }
 
         private static void VisualizeResultGraphs(GraphExport ge, Graph g1, Graph g2, Dictionary<int, int> mapping)
