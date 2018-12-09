@@ -158,7 +158,7 @@ namespace Tajo
                     default:
                         break;
                 }
-
+                Console.WriteLine("---------------------------------------------------------");
                 Console.WriteLine("Press [ESC] to exit...");
                 Console.WriteLine("Press [BACKSPACE] to load new graphs...");
                 Console.WriteLine("Press any other button to contiune calculations on given graphs...");
