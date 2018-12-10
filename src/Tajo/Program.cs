@@ -21,7 +21,16 @@ namespace Tajo
             char y = '0';
             Dictionary<int, int> output1;
             Dictionary<int, int> output2;
-            GraphExport ge = new GraphExport();
+
+            GraphExport ge = null;
+            try
+            {
+                ge = new GraphExport();
+            }
+            catch
+            {
+                Console.WriteLine("GraphViz isn't installed. Graphs will be not visualized.");
+            }
 
             // Load *.csv with Open Dialog 
             OpenFileDialog ofd1 = new OpenFileDialog();
