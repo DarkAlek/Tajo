@@ -533,7 +533,7 @@ namespace Tajo
 
 			g.DFSearchAll(vv, null, out cc);
 
-            if (cc == 1)
+            if (cc != 1)
             {
                 //max spójny
                 int maxCount = int.MinValue;
